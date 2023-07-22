@@ -21,7 +21,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:intl/intl.dart';
 
-
 final FlutterLocalNotificationsPlugin localNotif =
     FlutterLocalNotificationsPlugin();
 
@@ -31,7 +30,6 @@ class dashBoard extends StatefulWidget {
 }
 
 class welcomeScreen extends State<dashBoard> {
-
   final auth = FirebaseAuth.instance;
   late String currentUserID;
   final ref = FirebaseDatabase.instance.ref('Plants');
@@ -41,8 +39,7 @@ class welcomeScreen extends State<dashBoard> {
 
   List<Map> filters = Filters().filters;
   Filter filter = Filter.six_hour;
-  bool showAll = false;
-
+  bool showAll = true;
 
   @override
   void initState() {
@@ -120,7 +117,8 @@ class welcomeScreen extends State<dashBoard> {
                           child: Column(
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Container(
                                     margin:
@@ -427,10 +425,10 @@ class welcomeScreen extends State<dashBoard> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: InkWell(
-                                onTap: () async{
+                                onTap: () async {
                                   setState(() {
-                                    for (int i=0; i<filters.length; i++) {
-                                      if(filters[i]['active'] == true) {
+                                    for (int i = 0; i < filters.length; i++) {
+                                      if (filters[i]['active'] == true) {
                                         setFilter(filters[i], filter);
                                       }
                                     }
@@ -438,7 +436,7 @@ class welcomeScreen extends State<dashBoard> {
                                 },
                                 child: Icon(
                                   Icons.refresh_outlined,
-                                  size:25 ,
+                                  size: 25,
                                   color: Colors.green,
                                 ),
                               ),
@@ -460,7 +458,9 @@ class welcomeScreen extends State<dashBoard> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => historyPage(filter: filter,)));
+                                    builder: (context) => historyPage(
+                                          filter: filter,
+                                        )));
                           },
                         ),
                       )
@@ -473,9 +473,9 @@ class welcomeScreen extends State<dashBoard> {
                     endIndent: 10,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Column(
+                      /*Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -483,8 +483,7 @@ class welcomeScreen extends State<dashBoard> {
                               Padding(
                                 padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                                 child: Container(
-                                  child: Text(
-                                      'Show all:',
+                                  child: Text('Show all:',
                                       style: TextStyle(
                                         fontSize: 12,
                                       )),
@@ -503,86 +502,86 @@ class welcomeScreen extends State<dashBoard> {
                             ],
                           ),
                         ],
-                      ),
+                      ),*/
                       Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Container(
-                                width: 50,
+                                width: 70,
                                 child: TextButton(
                                   style: ButtonStyle(
                                     foregroundColor: filters[0]['active']
-                                        ? MaterialStateProperty.all(Colors.green)
-                                        : MaterialStateProperty.all(Colors.grey),
+                                        ? MaterialStateProperty.all(
+                                            Colors.green)
+                                        : MaterialStateProperty.all(
+                                            Colors.grey),
                                   ),
                                   onPressed: () {
                                     setFilter(filters[0], Filter.six_hour);
                                   },
-                                  child: Text(
-                                      '6HR',
+                                  child: Text('6HR',
                                       style: TextStyle(
                                         fontSize: 12,
-                                      )
-                                  ),
+                                      )),
                                 ),
                               ),
                               Container(
-                                width: 50,
+                                width: 70,
                                 child: TextButton(
                                   style: ButtonStyle(
                                     foregroundColor: filters[1]['active']
-                                        ? MaterialStateProperty.all(Colors.green)
-                                        : MaterialStateProperty.all(Colors.grey),
+                                        ? MaterialStateProperty.all(
+                                            Colors.green)
+                                        : MaterialStateProperty.all(
+                                            Colors.grey),
                                   ),
                                   onPressed: () {
                                     setFilter(filters[1], Filter.one_day);
                                   },
-                                  child: Text(
-                                      '1D',
+                                  child: Text('1D',
                                       style: TextStyle(
                                         fontSize: 12,
-                                      )
-                                  ),
+                                      )),
                                 ),
                               ),
                               Container(
-                                width: 50,
+                                width: 70,
                                 child: TextButton(
                                   style: ButtonStyle(
                                     foregroundColor: filters[2]['active']
-                                        ? MaterialStateProperty.all(Colors.green)
-                                        : MaterialStateProperty.all(Colors.grey),
+                                        ? MaterialStateProperty.all(
+                                            Colors.green)
+                                        : MaterialStateProperty.all(
+                                            Colors.grey),
                                   ),
                                   onPressed: () {
                                     setFilter(filters[2], Filter.one_week);
                                   },
-                                  child: Text(
-                                      '1W',
+                                  child: Text('1W',
                                       style: TextStyle(
                                         fontSize: 12,
-                                      )
-                                  ),
+                                      )),
                                 ),
                               ),
                               Container(
-                                width: 50,
+                                width: 70,
                                 child: TextButton(
                                   style: ButtonStyle(
                                     foregroundColor: filters[3]['active']
-                                        ? MaterialStateProperty.all(Colors.green)
-                                        : MaterialStateProperty.all(Colors.grey),
+                                        ? MaterialStateProperty.all(
+                                            Colors.green)
+                                        : MaterialStateProperty.all(
+                                            Colors.grey),
                                   ),
                                   onPressed: () {
                                     setFilter(filters[3], Filter.one_month);
                                   },
-                                  child: Text(
-                                      '1M',
+                                  child: Text('1M',
                                       style: TextStyle(
                                         fontSize: 12,
-                                      )
-                                  ),
+                                      )),
                                 ),
                               ),
                             ],
@@ -594,7 +593,10 @@ class welcomeScreen extends State<dashBoard> {
                   Container(
                     width: double.infinity,
                     height: 300,
-                    child: Chart(filter: filter, showAll: showAll, axis: Axis.horizontal),
+                    child: Chart(
+                        filter: filter,
+                        showAll: showAll,
+                        axis: Axis.horizontal),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -607,7 +609,7 @@ class welcomeScreen extends State<dashBoard> {
                   ),
                 ],
               ),
-            ), 
+            ),
 
 /*PLANTS CONTAINER */
 
@@ -719,7 +721,10 @@ class welcomeScreen extends State<dashBoard> {
                   Container(
                     height: 200,
                     child: FirebaseAnimatedList(
-                      query: ref.orderByChild('userId').equalTo(currentUserID).limitToFirst(10),
+                      query: ref
+                          .orderByChild('userId')
+                          .equalTo(currentUserID)
+                          .limitToFirst(10),
                       itemBuilder: (BuildContext context, DataSnapshot snapshot,
                           Animation<double> animation, int index) {
                         //if (snapshot == null || snapshot.value == null)
@@ -727,7 +732,8 @@ class welcomeScreen extends State<dashBoard> {
                         final plantName =
                             snapshot.child('batchName').value?.toString() ?? '';
                         final greenhouse =
-                            snapshot.child('greenhouse').value?.toString() ?? '';
+                            snapshot.child('greenhouse').value?.toString() ??
+                                '';
                         final reserName =
                             snapshot.child('reserv').value?.toString() ?? '';
                         return ListView(
@@ -736,7 +742,8 @@ class welcomeScreen extends State<dashBoard> {
                           children: [
                             IntrinsicHeight(
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 //mainAxisSize: MainAxisSize.max,
                                 //crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -761,8 +768,8 @@ class welcomeScreen extends State<dashBoard> {
                                   ),
                                   Expanded(
                                     child: Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 14.0),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 14.0),
                                       child: Column(
                                         children: [
                                           Text(
@@ -779,8 +786,8 @@ class welcomeScreen extends State<dashBoard> {
                                   ),
                                   Expanded(
                                     child: Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 14.0),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 14.0),
                                       child: Column(
                                         children: [
                                           Text(
@@ -878,9 +885,14 @@ class welcomeScreen extends State<dashBoard> {
                   Container(
                     height: 300,
                     child: FirebaseAnimatedList(
-                        query: refNotes.orderByChild('userId').equalTo(currentUserID).limitToFirst(2),
-                        itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                            Animation<double> animation, int index){
+                        query: refNotes
+                            .orderByChild('userId')
+                            .equalTo(currentUserID)
+                            .limitToFirst(2),
+                        itemBuilder: (BuildContext context,
+                            DataSnapshot snapshot,
+                            Animation<double> animation,
+                            int index) {
                           return Wrap(
                             children: [
                               Container(
@@ -904,21 +916,29 @@ class welcomeScreen extends State<dashBoard> {
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            snapshot.child('title').value.toString(),
+                                            snapshot
+                                                .child('title')
+                                                .value
+                                                .toString(),
                                             style: TextStyle(
                                               fontSize: 15,
                                               fontWeight: FontWeight.bold,
-                                              color: Theme.of(context).primaryColor,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
                                             ),
                                           ),
                                         ),
                                         Expanded(
                                           child: Text(
-                                            snapshot.child('date').value.toString(),
+                                            snapshot
+                                                .child('date')
+                                                .value
+                                                .toString(),
                                             textAlign: TextAlign.right,
                                             style: TextStyle(
                                               fontSize: 15,
-                                              color: Theme.of(context).primaryColor,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
                                             ),
                                           ),
                                         ),
@@ -929,7 +949,14 @@ class welcomeScreen extends State<dashBoard> {
                                       children: [
                                         Column(
                                           children: [
-                                            Text(snapshot.child('currentData').value.toString().replaceAll(RegExp("{|}"),"").replaceAll(RegExp(","),'\n').replaceAll(RegExp("0420:"),''))
+                                            Text(snapshot
+                                                .child('currentData')
+                                                .value
+                                                .toString()
+                                                .replaceAll(RegExp("{|}"), "")
+                                                .replaceAll(RegExp(","), '\n')
+                                                .replaceAll(
+                                                    RegExp("0420:"), ''))
                                           ],
                                         ),
                                       ],
@@ -939,8 +966,7 @@ class welcomeScreen extends State<dashBoard> {
                               ),
                             ],
                           );
-                        }
-                    ),
+                        }),
                   ),
                 ],
               ),

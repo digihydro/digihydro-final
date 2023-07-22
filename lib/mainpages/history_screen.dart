@@ -18,7 +18,8 @@ final FlutterLocalNotificationsPlugin localNotif =
     FlutterLocalNotificationsPlugin();
 
 class historyPage extends StatefulWidget {
-  historyPage({Key? key, required this.filter, this.title, this.snapshot}) : super(key: key);
+  historyPage({Key? key, required this.filter, this.title, this.snapshot})
+      : super(key: key);
   final Filter filter;
   final String? title;
   final snapshot;
@@ -45,26 +46,27 @@ class histScreen extends State<historyPage> {
   }
 
   String getFilterTitle(Filter filter) {
-     String title = "Stats History";
-     switch (filter) {
-       case Filter.six_hour:
-         title = '$title (6HR)';
-         break;
-       case Filter.one_day:
-         title = '$title (1D)';
-         break;
-       case Filter.one_week:
-         title = '$title (1W)';
-         break;
-       case Filter.one_month:
-         title = '$title (1M)';
-         break;
-       case Filter.custom0:
-       case Filter.custom1:
-         title = widget.title != null ? widget.title.toString() : 'Stats History';
-         break;
-     }
-     return title;
+    String title = "Data Track Record";
+    switch (filter) {
+      case Filter.six_hour:
+        title = '$title (6HR)';
+        break;
+      case Filter.one_day:
+        title = '$title (1D)';
+        break;
+      case Filter.one_week:
+        title = '$title (1W)';
+        break;
+      case Filter.one_month:
+        title = '$title (1M)';
+        break;
+      case Filter.custom0:
+      case Filter.custom1:
+        title =
+            widget.title != null ? widget.title.toString() : 'Stats History';
+        break;
+    }
+    return title;
   }
 
   @override
@@ -73,12 +75,16 @@ class histScreen extends State<historyPage> {
       backgroundColor: Color.fromARGB(255, 201, 237, 220),
       drawer: drawerPage(),
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         backgroundColor: Colors.green,
         //automaticallyImplyLeading: false,
-        iconTheme: const IconThemeData(
+        /*iconTheme: const IconThemeData(
           color: Colors.white,
           size: 40.00,
-        ),
+        ),*/
         actions: <Widget>[
           Container(
             margin: EdgeInsets.fromLTRB(0, 5, 15, 0),
@@ -91,10 +97,36 @@ class histScreen extends State<historyPage> {
           ),
         ],
       ),
-      body:  SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           children: [
             Container(
+              child: Row(
+                children: <Widget>[
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                    child: Icon(
+                      Icons.analytics,
+                      size: 50,
+                      color: Colors.green,
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(10, 10, 5, 10),
+                    child: Text(
+                      'Stats History',
+                      textAlign: TextAlign.justify,
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            /*Container(
               margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -146,7 +178,11 @@ class histScreen extends State<historyPage> {
                   Container(
                     width: double.infinity,
                     height: 300,
-                    child: Chart(filter: widget.filter, showAll: true, axis: Axis.horizontal, snapshot: widget.snapshot),
+                    child: Chart(
+                        filter: widget.filter,
+                        showAll: true,
+                        axis: Axis.horizontal,
+                        snapshot: widget.snapshot),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -159,7 +195,7 @@ class histScreen extends State<historyPage> {
                   ),
                 ],
               ),
-            ),
+            ),*/
             Container(
               margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
               decoration: BoxDecoration(
@@ -211,8 +247,12 @@ class histScreen extends State<historyPage> {
                   ),
                   Container(
                     width: double.infinity,
-                    height: 300,
-                    child: Chart(filter: widget.filter, showAll: false, axis: Axis.horizontal, snapshot: widget.snapshot),
+                    height: 470,
+                    child: Chart(
+                        filter: widget.filter,
+                        showAll: false,
+                        axis: Axis.vertical,
+                        snapshot: widget.snapshot),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
