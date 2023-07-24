@@ -27,6 +27,7 @@ class Chart extends StatefulWidget {
 }
 
 class chartScreen extends State<Chart> {
+  final ScrollController controller = ScrollController();
   List<Color> gradientColors = [
     Colors.teal,
     Colors.amberAccent,
@@ -51,7 +52,7 @@ class chartScreen extends State<Chart> {
               Map<dynamic, dynamic> data = snapshot.data;
 
               Widget chart = ShowIndividualChart(
-                  data, widget.filter, gradientColors, widget.axis);
+                  data, widget.filter, gradientColors, widget.axis, controller);
               if (widget.showAll) {
                 chart = ShowAllChart(data, widget.filter, gradientColors);
               }
@@ -366,109 +367,115 @@ Widget ShowAllChart(
 
 //show chart individually
 Widget ShowIndividualChart(Map<dynamic, dynamic> data, Filter filter,
-    List<Color> gradientColors, Axis axis) {
+    List<Color> gradientColors, Axis axis, ScrollController controller) {
   return Builder(builder: (context) {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 300,
-      child: ListView.builder(
-        itemCount: data["spots"].length,
-        shrinkWrap: true,
-        padding: EdgeInsets.zero,
-        scrollDirection: axis,
-        itemBuilder: (BuildContext context, int index) {
-          List<FlSpot> _data = [];
-          double maxY = 0;
-          double interval = 0;
-          double reserve_size = 0;
-          String title = "";
+      child: Scrollbar(
+        thickness: 15.0,
+        thumbVisibility: true,
+        controller: controller,
+        child: ListView.builder(
+          controller: controller,
+          itemCount: data["spots"].length,
+          shrinkWrap: true,
+          padding: EdgeInsets.zero,
+          scrollDirection: axis,
+          itemBuilder: (BuildContext context, int index) {
+            List<FlSpot> _data = [];
+            double maxY = 0;
+            double interval = 0;
+            double reserve_size = 0;
+            String title = "";
 
-          switch (index) {
-            case 0:
-              _data = data["spots"][Constant.air_temperature];
-              title = "AIR TEMPERATURE";
-              maxY = 100;
-              interval = 20;
-              reserve_size = 35;
-              break;
-            case 1:
-              _data = data["spots"][Constant.water_temperature];
-              title = "WATER TEMPERATURE";
-              maxY = 100;
-              interval = 20;
-              reserve_size = 35;
-              break;
-            case 2:
-              _data = data["spots"][Constant.humidity];
-              title = "HUMIDITY";
-              maxY = 100;
-              interval = 20;
-              reserve_size = 35;
-              break;
-            case 3:
-              _data = data["spots"][Constant.ph];
-              title = "WATER ACIDITY";
-              maxY = 100;
-              interval = 20;
-              reserve_size = 35;
-              break;
-            case 4:
-              _data = data["spots"][Constant.tds];
-              title = "TOTAL DISOLVED SOLIDS";
-              maxY = 2000;
-              interval = 500;
-              reserve_size = 50;
-              break;
-          }
+            switch (index) {
+              case 0:
+                _data = data["spots"][Constant.air_temperature];
+                title = "AIR TEMPERATURE";
+                maxY = 100;
+                interval = 20;
+                reserve_size = 35;
+                break;
+              case 1:
+                _data = data["spots"][Constant.water_temperature];
+                title = "WATER TEMPERATURE";
+                maxY = 100;
+                interval = 20;
+                reserve_size = 35;
+                break;
+              case 2:
+                _data = data["spots"][Constant.humidity];
+                title = "HUMIDITY";
+                maxY = 100;
+                interval = 20;
+                reserve_size = 35;
+                break;
+              case 3:
+                _data = data["spots"][Constant.ph];
+                title = "WATER ACIDITY";
+                maxY = 100;
+                interval = 20;
+                reserve_size = 35;
+                break;
+              case 4:
+                _data = data["spots"][Constant.tds];
+                title = "TOTAL DISOLVED SOLIDS";
+                maxY = 2000;
+                interval = 500;
+                reserve_size = 50;
+                break;
+            }
 
-          Map<dynamic, double> values = getValues(data, filter);
-          double maxX = values["maxX"]!;
-          double maxX_interval = values["maxX_interval"]!;
-          double vertical_interval = values["vertical_interval"]!;
+            Map<dynamic, double> values = getValues(data, filter);
+            double maxX = values["maxX"]!;
+            double maxX_interval = values["maxX_interval"]!;
+            double vertical_interval = values["vertical_interval"]!;
 
-          return Builder(builder: (context) {
-            return Container(
-              width: MediaQuery.of(context).size.width,
-              height: 300,
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 20, 10),
-                child: Column(
-                  children: [
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsetsDirectional.fromSTEB(
-                              10, 0, 10, 10),
-                          child: Text('$title'),
-                        ),
-                      ],
-                    ),
-                    Flexible(
-                      child: LineChart(
-                        LineChartData(
-                          borderData: flBorderData(),
-                          gridData: flGridData(vertical_interval),
-                          titlesData: flTitlesData(data, filter, maxX_interval,
-                              interval, reserve_size),
-                          lineTouchData:
-                              lineTouchData(filter, data, index: index),
-                          maxY: maxY,
-                          minY: 0,
-                          minX: 0,
-                          maxX: maxX,
-                          lineBarsData: [
-                            lineChartBarData(_data, Colors.green, false),
-                          ],
+            return Builder(builder: (context) {
+              return Container(
+                width: MediaQuery.of(context).size.width,
+                height: 300,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 20, 10),
+                  child: Column(
+                    children: [
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                10, 0, 10, 10),
+                            child: Text('$title'),
+                          ),
+                        ],
+                      ),
+                      Flexible(
+                        child: LineChart(
+                          LineChartData(
+                            borderData: flBorderData(),
+                            gridData: flGridData(vertical_interval),
+                            titlesData: flTitlesData(data, filter,
+                                maxX_interval, interval, reserve_size),
+                            lineTouchData:
+                                lineTouchData(filter, data, index: index),
+                            maxY: maxY,
+                            minY: 0,
+                            minX: 0,
+                            maxX: maxX,
+                            lineBarsData: [
+                              lineChartBarData(_data, Colors.green, false),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          });
-        },
+              );
+            });
+          },
+        ),
       ),
     );
   });

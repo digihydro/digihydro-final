@@ -31,7 +31,7 @@ class index extends State<IndexScreen> {
   String? currentUserID;
 
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+      FlutterLocalNotificationsPlugin();
   final userEmail = TextEditingController(text: "test@gmail.com");
   final userPass = TextEditingController(text: "test1234");
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
@@ -66,7 +66,7 @@ class index extends State<IndexScreen> {
         errorMessage = 'Incorrect Password';
         // Increment the failed attempts in the database
         final ref =
-        FirebaseDatabase.instance.ref('FailedAttempts/$currentUserID');
+            FirebaseDatabase.instance.ref('FailedAttempts/$currentUserID');
         final snapshot = await ref.get();
         if (snapshot.exists) {
           final valueMap = Map<String, dynamic>.from(snapshot.value as Map);
@@ -126,19 +126,20 @@ class index extends State<IndexScreen> {
 
   initInfo() {
     var androidInitialize =
-    const AndroidInitializationSettings('@mipmap/launcher_icon');
+        const AndroidInitializationSettings('@mipmap/launcher_icon');
     //var iOSInitialize = new IOSInitializationSettings();
     var initializationsSettings = InitializationSettings(
       android: androidInitialize, /*iOS: IOSInitialize*/
     );
     flutterLocalNotificationsPlugin.initialize(initializationsSettings,
         onDidReceiveNotificationResponse: (payload) async {
-          try {
-            if (payload != null /*&& payload.isNotEmpty*/) {
-            } else {}
-          } catch (e) {}
-          return;
-        });
+      try {
+        // ignore: unnecessary_null_comparison
+        if (payload != null /*&& payload.isNotEmpty*/) {
+        } else {}
+      } catch (e) {}
+      return;
+    });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       print("...............Message.................");
@@ -152,7 +153,7 @@ class index extends State<IndexScreen> {
         htmlFormatContentTitle: true,
       );
       AndroidNotificationDetails androidPlatformChannelSpecifics =
-      AndroidNotificationDetails(
+          AndroidNotificationDetails(
         'DigiHydro',
         'channelName',
         importance: Importance.high,
@@ -162,7 +163,7 @@ class index extends State<IndexScreen> {
         sound: RawResourceAndroidNotificationSound('dhnotif'),
       );
       NotificationDetails platformChannelSpecifics =
-      NotificationDetails(android: androidPlatformChannelSpecifics);
+          NotificationDetails(android: androidPlatformChannelSpecifics);
       await flutterLocalNotificationsPlugin.show(0, message.notification?.title,
           message.notification?.body, platformChannelSpecifics,
           payload: message.data['title']);
@@ -208,7 +209,7 @@ class index extends State<IndexScreen> {
         headers: <String, String>{
           'Content-Type': 'application/json',
           'Authorization':
-          'key=AAAA46Vc9y4:APA91bHBOJsbzLSlquVeeHuiPfsrtKEt0603hsqobh1IH-B5OsWxjpdZELOI5QhdrXKJ7bcJyV3dOZJcAq3Dz7krJy9JJxUgQjHI79mAeqAIBlfHWInhWIgePB7tNOcWqsJ4uHiV92N9', //server key
+              'key=AAAA46Vc9y4:APA91bHBOJsbzLSlquVeeHuiPfsrtKEt0603hsqobh1IH-B5OsWxjpdZELOI5QhdrXKJ7bcJyV3dOZJcAq3Dz7krJy9JJxUgQjHI79mAeqAIBlfHWInhWIgePB7tNOcWqsJ4uHiV92N9', //server key
         },
         body: jsonEncode(
           <String, dynamic>{
@@ -280,7 +281,6 @@ class index extends State<IndexScreen> {
                 query: refDev,
                 itemBuilder: (BuildContext context, DataSnapshot snapshot,
                     Animation<double> animation, int index) {
-
                   return Wrap(
                     children: <Widget>[
                       Container(
@@ -404,9 +404,9 @@ class index extends State<IndexScreen> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(20)),
                                   backgroundColor:
-                                  Color.fromARGB(153, 143, 143, 143),
+                                      Color.fromARGB(153, 143, 143, 143),
                                   textStyle:
-                                  const TextStyle(color: Colors.grey),
+                                      const TextStyle(color: Colors.grey),
                                 ),
                                 onPressed: () {
                                   Navigator.push(
@@ -443,8 +443,8 @@ String? valPass(String? formPass) {
   return null;
 }
 
-showLoaderDialog(BuildContext context){
-  AlertDialog alert=AlertDialog(
+showLoaderDialog(BuildContext context) {
+  AlertDialog alert = AlertDialog(
     insetPadding: EdgeInsets.fromLTRB(20, 0, 20, 0),
     content: Container(
       width: 100,
@@ -466,9 +466,10 @@ showLoaderDialog(BuildContext context){
       ),
     ),
   );
-  showDialog(barrierDismissible: false,
-    context:context,
-    builder:(BuildContext context){
+  showDialog(
+    barrierDismissible: false,
+    context: context,
+    builder: (BuildContext context) {
       return alert;
     },
   );
