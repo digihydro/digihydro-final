@@ -1,25 +1,19 @@
-import 'dart:math';
 import 'package:digihydro/enums/enums.dart';
 import 'package:digihydro/mainpages/chart.dart';
+import 'package:digihydro/mainpages/history_screen.dart';
 import 'package:digihydro/mainpages/notes_screen.dart';
 import 'package:digihydro/mainpages/notif.dart';
 import 'package:digihydro/mainpages/plants_screen.dart';
 import 'package:digihydro/mainpages/reservoir_screen.dart';
 import 'package:digihydro/mainpages/device_screen.dart';
-import 'package:digihydro/mainpages/history_screen.dart';
-import 'package:digihydro/model/statistics.dart';
-import 'package:digihydro/utils/filters.dart';
-import 'package:digihydro/utils/tools.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:digihydro/utils/filter_data.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:digihydro/drawer_screen.dart';
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:jiffy/jiffy.dart';
-import 'package:intl/intl.dart';
+
 
 final FlutterLocalNotificationsPlugin localNotif =
     FlutterLocalNotificationsPlugin();
@@ -30,6 +24,7 @@ class dashBoard extends StatefulWidget {
 }
 
 class welcomeScreen extends State<dashBoard> {
+
   final auth = FirebaseAuth.instance;
   late String currentUserID;
   final ref = FirebaseDatabase.instance.ref('Plants');
@@ -37,9 +32,10 @@ class welcomeScreen extends State<dashBoard> {
   final refDevice = FirebaseDatabase.instance.ref('Devices');
   final refNotes = FirebaseDatabase.instance.ref('Notes');
 
-  List<Map> filters = Filters().filters;
+  List<Map> filters = FilterData().filters;
   Filter filter = Filter.six_hour;
-  bool showAll = true;
+  bool showAll = false;
+
 
   @override
   void initState() {
@@ -107,6 +103,8 @@ class welcomeScreen extends State<dashBoard> {
               child: Container(
                 height: 270,
                 child: FirebaseAnimatedList(
+                  shrinkWrap: true,
+                  physics: ClampingScrollPhysics(),
                   query: refDevice,
                   itemBuilder: (BuildContext context, DataSnapshot snapshot,
                       Animation<double> animation, int index) {
@@ -117,8 +115,7 @@ class welcomeScreen extends State<dashBoard> {
                           child: Column(
                             children: [
                               Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
                                   Container(
                                     margin:
@@ -149,6 +146,7 @@ class welcomeScreen extends State<dashBoard> {
                                           //    Color(0xFF1a1a1a).withOpacity(0.8),
                                           builder: (BuildContext context) {
                                             return AlertDialog(
+                                              insetPadding: EdgeInsets.fromLTRB(20, 0, 20, 0),
                                               content: SingleChildScrollView(
                                                 child: Column(
                                                   children: [
@@ -161,8 +159,19 @@ class welcomeScreen extends State<dashBoard> {
                                                 ),
                                               ),
                                               actions: [
-                                                TextButton(
-                                                  child: Text("OK"),
+                                                ElevatedButton(
+                                                  child: Text('OK'),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: Colors.green,
+                                                    shape: RoundedRectangleBorder(
+                                                        borderRadius: BorderRadius.circular(20)),
+                                                    padding: EdgeInsets.fromLTRB(25, 10, 25, 10),
+                                                    textStyle: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
                                                   onPressed: () {
                                                     Navigator.of(context).pop();
                                                   },
@@ -425,10 +434,10 @@ class welcomeScreen extends State<dashBoard> {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: InkWell(
-                                onTap: () async {
+                                onTap: () async{
                                   setState(() {
-                                    for (int i = 0; i < filters.length; i++) {
-                                      if (filters[i]['active'] == true) {
+                                    for (int i=0; i<filters.length; i++) {
+                                      if(filters[i]['active'] == true) {
                                         setFilter(filters[i], filter);
                                       }
                                     }
@@ -436,7 +445,7 @@ class welcomeScreen extends State<dashBoard> {
                                 },
                                 child: Icon(
                                   Icons.refresh_outlined,
-                                  size: 25,
+                                  size:25 ,
                                   color: Colors.green,
                                 ),
                               ),
@@ -458,9 +467,7 @@ class welcomeScreen extends State<dashBoard> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => historyPage(
-                                          filter: filter,
-                                        )));
+                                    builder: (context) => historyPage(filter: filter,)));
                           },
                         ),
                       )
@@ -473,9 +480,9 @@ class welcomeScreen extends State<dashBoard> {
                     endIndent: 10,
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween ,
                     children: [
-                      /*Column(
+                      Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -483,7 +490,8 @@ class welcomeScreen extends State<dashBoard> {
                               Padding(
                                 padding: EdgeInsets.fromLTRB(20, 0, 0, 0),
                                 child: Container(
-                                  child: Text('Show all:',
+                                  child: Text(
+                                      'Show all:',
                                       style: TextStyle(
                                         fontSize: 12,
                                       )),
@@ -502,86 +510,86 @@ class welcomeScreen extends State<dashBoard> {
                             ],
                           ),
                         ],
-                      ),*/
+                      ),
                       Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Container(
-                                width: 70,
+                                width: 50,
                                 child: TextButton(
                                   style: ButtonStyle(
                                     foregroundColor: filters[0]['active']
-                                        ? MaterialStateProperty.all(
-                                            Colors.green)
-                                        : MaterialStateProperty.all(
-                                            Colors.grey),
+                                        ? MaterialStateProperty.all(Colors.green)
+                                        : MaterialStateProperty.all(Colors.grey),
                                   ),
                                   onPressed: () {
                                     setFilter(filters[0], Filter.six_hour);
                                   },
-                                  child: Text('6HR',
+                                  child: Text(
+                                      '6HR',
                                       style: TextStyle(
                                         fontSize: 12,
-                                      )),
+                                      )
+                                  ),
                                 ),
                               ),
                               Container(
-                                width: 70,
+                                width: 50,
                                 child: TextButton(
                                   style: ButtonStyle(
                                     foregroundColor: filters[1]['active']
-                                        ? MaterialStateProperty.all(
-                                            Colors.green)
-                                        : MaterialStateProperty.all(
-                                            Colors.grey),
+                                        ? MaterialStateProperty.all(Colors.green)
+                                        : MaterialStateProperty.all(Colors.grey),
                                   ),
                                   onPressed: () {
                                     setFilter(filters[1], Filter.one_day);
                                   },
-                                  child: Text('1D',
+                                  child: Text(
+                                      '1D',
                                       style: TextStyle(
                                         fontSize: 12,
-                                      )),
+                                      )
+                                  ),
                                 ),
                               ),
                               Container(
-                                width: 70,
+                                width: 50,
                                 child: TextButton(
                                   style: ButtonStyle(
                                     foregroundColor: filters[2]['active']
-                                        ? MaterialStateProperty.all(
-                                            Colors.green)
-                                        : MaterialStateProperty.all(
-                                            Colors.grey),
+                                        ? MaterialStateProperty.all(Colors.green)
+                                        : MaterialStateProperty.all(Colors.grey),
                                   ),
                                   onPressed: () {
                                     setFilter(filters[2], Filter.one_week);
                                   },
-                                  child: Text('1W',
+                                  child: Text(
+                                      '1W',
                                       style: TextStyle(
                                         fontSize: 12,
-                                      )),
+                                      )
+                                  ),
                                 ),
                               ),
                               Container(
-                                width: 70,
+                                width: 50,
                                 child: TextButton(
                                   style: ButtonStyle(
                                     foregroundColor: filters[3]['active']
-                                        ? MaterialStateProperty.all(
-                                            Colors.green)
-                                        : MaterialStateProperty.all(
-                                            Colors.grey),
+                                        ? MaterialStateProperty.all(Colors.green)
+                                        : MaterialStateProperty.all(Colors.grey),
                                   ),
                                   onPressed: () {
                                     setFilter(filters[3], Filter.one_month);
                                   },
-                                  child: Text('1M',
+                                  child: Text(
+                                      '1M',
                                       style: TextStyle(
                                         fontSize: 12,
-                                      )),
+                                      )
+                                  ),
                                 ),
                               ),
                             ],
@@ -593,10 +601,7 @@ class welcomeScreen extends State<dashBoard> {
                   Container(
                     width: double.infinity,
                     height: 300,
-                    child: Chart(
-                        filter: filter,
-                        showAll: showAll,
-                        axis: Axis.horizontal),
+                    child: Chart(filter: filter, showAll: showAll, axis: Axis.horizontal, isFromDashboard: true,),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -609,7 +614,7 @@ class welcomeScreen extends State<dashBoard> {
                   ),
                 ],
               ),
-            ),
+            ), 
 
 /*PLANTS CONTAINER */
 
@@ -719,95 +724,121 @@ class welcomeScreen extends State<dashBoard> {
                     ],
                   ),
                   Container(
-                    height: 200,
-                    child: FirebaseAnimatedList(
-                      query: ref
-                          .orderByChild('userId')
-                          .equalTo(currentUserID)
-                          .limitToFirst(10),
-                      itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                          Animation<double> animation, int index) {
-                        //if (snapshot == null || snapshot.value == null)
-                        if (snapshot.value == null) return SizedBox.shrink();
-                        final plantName =
-                            snapshot.child('batchName').value?.toString() ?? '';
-                        final greenhouse =
-                            snapshot.child('greenhouse').value?.toString() ??
-                                '';
-                        final reserName =
-                            snapshot.child('reserv').value?.toString() ?? '';
-                        return ListView(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          children: [
-                            IntrinsicHeight(
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                //mainAxisSize: MainAxisSize.max,
-                                //crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(horizontal: 8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                    height: 300,
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 250,
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.list_alt_rounded,
+                                  size: 50,
+                                  color: Colors.green,
+                                ),
+                                Text("No Data")
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          color: Colors.white,
+                          child: FirebaseAnimatedList(
+                            shrinkWrap: true,
+                            physics: ClampingScrollPhysics(),
+                            query: ref.orderByChild('userId').equalTo(currentUserID).limitToFirst(10),
+                            itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                                Animation<double> animation, int index) {
+                              //if (snapshot == null || snapshot.value == null)
+                              if (snapshot.value == null) {
+                                return  Icon(
+                                  Icons.list_alt_rounded,
+                                  size: 25,
+                                );
+                              } else {
+                                final plantName =
+                                    snapshot.child('batchName').value?.toString() ?? '';
+                                final greenhouse =
+                                    snapshot.child('greenhouse').value?.toString() ?? '';
+                                final reserName =
+                                    snapshot.child('reserv').value?.toString() ?? '';
+                                return ListView(
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  children: [
+                                    IntrinsicHeight(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        //mainAxisSize: MainAxisSize.max,
+                                        //crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            '${index + 1}. ' + plantName,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Color(0xFF4f4f4f),
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  EdgeInsets.symmetric(horizontal: 8.0),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    '${index + 1}. ' + plantName,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xFF4f4f4f),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  EdgeInsets.symmetric(horizontal: 14.0),
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    greenhouse,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xFF4f4f4f),
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Expanded(
+                                            child: Padding(
+                                              padding:
+                                                  EdgeInsets.symmetric(horizontal: 14.0),
+                                              child: Column(
+                                                children: [
+                                                  Text(
+                                                    reserName,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xFF4f4f4f),
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 14.0),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            greenhouse,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Color(0xFF4f4f4f),
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 14.0),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            reserName,
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Color(0xFF4f4f4f),
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        );
-                      },
+                                    )
+                                  ],
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -884,89 +915,95 @@ class welcomeScreen extends State<dashBoard> {
                   ),
                   Container(
                     height: 300,
-                    child: FirebaseAnimatedList(
-                        query: refNotes
-                            .orderByChild('userId')
-                            .equalTo(currentUserID)
-                            .limitToFirst(2),
-                        itemBuilder: (BuildContext context,
-                            DataSnapshot snapshot,
-                            Animation<double> animation,
-                            int index) {
-                          return Wrap(
-                            children: [
-                              Container(
-                                margin: EdgeInsets.fromLTRB(10, 5, 10, 10),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5),
-                                      spreadRadius: 5,
-                                      blurRadius: 7,
-                                      offset: Offset(0, 3),
-                                    ),
-                                  ],
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 250,
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.list_alt_rounded,
+                                  size: 50,
+                                  color: Colors.green,
                                 ),
-                                child: Column(
+                                Text("No Data")
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          color: Colors.white,
+                          child: FirebaseAnimatedList(
+                              shrinkWrap: true,
+                              physics: ClampingScrollPhysics(),
+                              query: refNotes.orderByChild('userId').equalTo(currentUserID).limitToFirst(2),
+                              itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                                  Animation<double> animation, int index){
+                                return Wrap(
                                   children: [
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            snapshot
-                                                .child('title')
-                                                .value
-                                                .toString(),
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
+                                    Container(
+                                      margin: EdgeInsets.fromLTRB(10, 5, 10, 10),
+                                      padding: EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            spreadRadius: 1,
+                                            blurRadius: 1,
+                                            offset: Offset(0, 1),
                                           ),
-                                        ),
-                                        Expanded(
-                                          child: Text(
-                                            snapshot
-                                                .child('date')
-                                                .value
-                                                .toString(),
-                                            textAlign: TextAlign.right,
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              color: Theme.of(context)
-                                                  .primaryColor,
-                                            ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Text(
+                                                  snapshot.child('title').value.toString(),
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Theme.of(context).primaryColor,
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  snapshot.child('date').value.toString(),
+                                                  textAlign: TextAlign.right,
+                                                  style: TextStyle(
+                                                    fontSize: 15,
+                                                    color: Theme.of(context).primaryColor,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    Divider(),
-                                    Row(
-                                      children: [
-                                        Column(
-                                          children: [
-                                            Text(snapshot
-                                                .child('currentData')
-                                                .value
-                                                .toString()
-                                                .replaceAll(RegExp("{|}"), "")
-                                                .replaceAll(RegExp(","), '\n')
-                                                .replaceAll(
-                                                    RegExp("0420:"), ''))
-                                          ],
-                                        ),
-                                      ],
+                                          Divider(),
+                                          Row(
+                                            children: [
+                                              Column(
+                                                children: [
+                                                  Text(snapshot.child('currentData').value.toString().replaceAll(RegExp("{|}"),"").replaceAll(RegExp(","),'\n').replaceAll(RegExp("0420:"),''))
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ],
-                          );
-                        }),
+                                );
+                              }
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

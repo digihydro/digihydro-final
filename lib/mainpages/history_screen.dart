@@ -1,14 +1,8 @@
 import 'package:digihydro/enums/enums.dart';
 import 'package:digihydro/mainpages/chart.dart';
-import 'package:digihydro/mainpages/notes_screen.dart';
 import 'package:digihydro/mainpages/notif.dart';
-import 'package:digihydro/mainpages/plants_screen.dart';
-import 'package:digihydro/mainpages/reservoir_screen.dart';
-import 'package:digihydro/mainpages/device_screen.dart';
-import 'package:digihydro/utils/filters.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:digihydro/utils/filter_data.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:digihydro/drawer_screen.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +29,10 @@ class histScreen extends State<historyPage> {
   final refReserv = FirebaseDatabase.instance.ref('Reservoir');
   final refDevice = FirebaseDatabase.instance.ref('Devices');
 
+  bool showAll = false;
+  List<Map> filters = FilterData().filters;
+  Filter filter = Filter.six_hour;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +41,20 @@ class histScreen extends State<historyPage> {
     if (currentUser != null) {
       currentUserID = currentUser.uid;
     }
+    filter = widget.filter;
+    if (widget.filter != Filter.custom0 && widget.filter != Filter.custom1) {
+      setFilter(filters[widget.filter.index], widget.filter);
+    }
+  }
+
+  void setFilter(Map button, Filter _filter) {
+    filter = _filter;
+    setState(() {
+      for (var element in filters) {
+        element['active'] = false;
+      }
+      button['active'] = true;
+    });
   }
 
   String getFilterTitle(Filter filter) {
@@ -99,12 +111,13 @@ class histScreen extends State<historyPage> {
       ),
       body: SingleChildScrollView(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
               child: Row(
                 children: <Widget>[
                   Container(
-                    margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                    margin: const EdgeInsets.fromLTRB(10, 10, 0, 0),
                     child: Icon(
                       Icons.analytics,
                       size: 50,
@@ -112,7 +125,7 @@ class histScreen extends State<historyPage> {
                     ),
                   ),
                   Container(
-                    margin: const EdgeInsets.fromLTRB(10, 10, 5, 10),
+                    margin: const EdgeInsets.fromLTRB(10, 10, 5, 0),
                     child: Text(
                       'Stats History',
                       textAlign: TextAlign.justify,
@@ -126,78 +139,9 @@ class histScreen extends State<historyPage> {
                 ],
               ),
             ),
-            /*Container(
-              margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10, 8, 0, 0),
-                        child: Row(
-                          children: <Widget>[
-                            Icon(
-                              Icons.analytics,
-                              size: 25,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-                              child: Text(
-                                getFilterTitle(widget.filter),
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF1a1a1a),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Divider(
-                    color: Colors.grey,
-                    thickness: 1,
-                    indent: 10,
-                    endIndent: 10,
-                  ),
-                  Container(
-                    width: double.infinity,
-                    height: 300,
-                    child: Chart(
-                        filter: widget.filter,
-                        showAll: true,
-                        axis: Axis.horizontal,
-                        snapshot: widget.snapshot),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(10, 8, 0, 0),
-                        child: SizedBox(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),*/
             Container(
-              margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+              width: double.infinity,
+              margin: EdgeInsets.fromLTRB(10, 5, 10, 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -211,6 +155,7 @@ class histScreen extends State<historyPage> {
                 ],
               ),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,16 +171,60 @@ class histScreen extends State<historyPage> {
                             Padding(
                               padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
                               child: Text(
-                                getFilterTitle(widget.filter),
+                                "Data Track Record",
                                 style: TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 18,
                                   color: Color(0xFF1a1a1a),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ),
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: InkWell(
+                                onTap: () async {
+                                  setState(() {});
+                                },
+                                child: Icon(
+                                  Icons.refresh_outlined,
+                                  size: 25,
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ),
                           ],
                         ),
+                      ),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(20, 5, 0, 0),
+                                child: Container(
+                                  child: Text('Show all:',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      )),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 5, 10, 0),
+                                child: Container(
+                                  child: Switch(
+                                    value: showAll,
+                                    onChanged: (bool value) {
+                                      setState(() {
+                                        showAll = value;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -245,17 +234,112 @@ class histScreen extends State<historyPage> {
                     indent: 10,
                     endIndent: 10,
                   ),
+                  Visibility(
+                    visible: widget.filter != Filter.custom0 &&
+                        widget.filter != Filter.custom1,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(0, 0, 15, 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                width: 50,
+                                child: TextButton(
+                                  style: ButtonStyle(
+                                    foregroundColor: filters[0]['active']
+                                        ? MaterialStateProperty.all(
+                                            Colors.green)
+                                        : MaterialStateProperty.all(
+                                            Colors.grey),
+                                  ),
+                                  onPressed: () {
+                                    setFilter(filters[0], Filter.six_hour);
+                                  },
+                                  child: Text('6HR',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      )),
+                                ),
+                              ),
+                              Container(
+                                width: 50,
+                                child: TextButton(
+                                  style: ButtonStyle(
+                                    foregroundColor: filters[1]['active']
+                                        ? MaterialStateProperty.all(
+                                            Colors.green)
+                                        : MaterialStateProperty.all(
+                                            Colors.grey),
+                                  ),
+                                  onPressed: () {
+                                    setFilter(filters[1], Filter.one_day);
+                                  },
+                                  child: Text('1D',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      )),
+                                ),
+                              ),
+                              Container(
+                                width: 50,
+                                child: TextButton(
+                                  style: ButtonStyle(
+                                    foregroundColor: filters[2]['active']
+                                        ? MaterialStateProperty.all(
+                                            Colors.green)
+                                        : MaterialStateProperty.all(
+                                            Colors.grey),
+                                  ),
+                                  onPressed: () {
+                                    setFilter(filters[2], Filter.one_week);
+                                  },
+                                  child: Text('1W',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      )),
+                                ),
+                              ),
+                              Container(
+                                width: 50,
+                                child: TextButton(
+                                  style: ButtonStyle(
+                                    foregroundColor: filters[3]['active']
+                                        ? MaterialStateProperty.all(
+                                            Colors.green)
+                                        : MaterialStateProperty.all(
+                                            Colors.grey),
+                                  ),
+                                  onPressed: () {
+                                    setFilter(filters[3], Filter.one_month);
+                                  },
+                                  child: Text('1M',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                      )),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   Container(
                     width: double.infinity,
-                    height: 470,
+                    /*height: (MediaQuery.of(context).size.height - AppBar().preferredSize.height) - MediaQuery.of(context).padding.top,*/
                     child: Chart(
-                        filter: widget.filter,
-                        showAll: false,
-                        axis: Axis.vertical,
-                        snapshot: widget.snapshot),
+                      filter: filter,
+                      showAll: showAll,
+                      axis: Axis.horizontal,
+                      snapshot: widget.snapshot,
+                      isFromDashboard: false,
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Padding(
                         padding: EdgeInsets.fromLTRB(10, 8, 0, 0),

@@ -1,19 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:digihydro/enums/enums.dart';
+import 'package:digihydro/mainpages/history_screen.dart';
 import 'package:digihydro/model/snapshot.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:intl/intl.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:digihydro/create/create_note.dart';
 import 'package:digihydro/drawer_screen.dart';
-import 'history_screen.dart';
 
 
 class notesPage extends StatefulWidget {
@@ -290,19 +287,11 @@ class displayNote extends State<notesPage> {
                                     itemBuilder: (context, i) {
                                       return InkWell(
                                         onTap: () async {
+
                                           var range = snapshot_list?[i]["range"];
-                                          Range _range = Range(
-                                            start_date: Jiffy.parse(range[0], pattern: "MM-dd-yyyy")
-                                                .format(pattern: "MM-dd-yyyy 00:00")
-                                                .toString(),
-                                            end_date: Jiffy.parse(range[1], pattern: "MM-dd-yyyy")
-                                                .format(pattern: "MM-dd-yyyy 23:59")
-                                                .toString(),
-                                          );
-                                          Filter filter = Filter.custom1;
-                                          if (range[0] == range[1]) {
-                                            filter = Filter.custom0;
-                                          }
+                                          Range _range = Range(start_date: "${range[0]} 00:00", end_date: "${range[1]} 23:00");
+                                          Filter filter = range[0] == range[1] ? Filter.custom0 : Filter.custom1;
+
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
@@ -313,6 +302,7 @@ class displayNote extends State<notesPage> {
                                               ),
                                             ),
                                           );
+
                                         },
                                         child: Container(
                                           margin: EdgeInsets.only(top: 10, left: 10, right: 10),

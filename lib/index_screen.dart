@@ -32,8 +32,8 @@ class index extends State<IndexScreen> {
 
   late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
   FlutterLocalNotificationsPlugin();
-  final userEmail = TextEditingController();
-  final userPass = TextEditingController();
+  final userEmail = TextEditingController(text: "test@gmail.com");
+  final userPass = TextEditingController(text: "test1234");
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
   String errorMessage = '';
 
@@ -54,6 +54,8 @@ class index extends State<IndexScreen> {
           {'attempts': 0, 'timestamp': DateTime.now().millisecondsSinceEpoch});
       //checkAlert();
       errorMessage = '';
+      //pop loading icon
+      Navigator.pop(context);
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => dashBoard()),
       );
@@ -108,6 +110,8 @@ class index extends State<IndexScreen> {
       } else {
         errorMessage = error.message ?? 'An unknown error occurred';
       }
+      //pop loading icon
+      Navigator.pop(context);
       setState(() {});
     }
   }
@@ -276,6 +280,7 @@ class index extends State<IndexScreen> {
                 query: refDev,
                 itemBuilder: (BuildContext context, DataSnapshot snapshot,
                     Animation<double> animation, int index) {
+
                   return Wrap(
                     children: <Widget>[
                       Container(
@@ -353,8 +358,9 @@ class index extends State<IndexScreen> {
                               textStyle: const TextStyle(color: Colors.white),
                               minimumSize: Size(100, 50),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
                               if (_key.currentState!.validate()) {
+                                showLoaderDialog(context);
                                 signIn();
                               }
                             },
@@ -435,4 +441,35 @@ String? valEmail(String? formEmail) {
 String? valPass(String? formPass) {
   if (formPass == null || formPass.isEmpty) return 'Password is required.';
   return null;
+}
+
+showLoaderDialog(BuildContext context){
+  AlertDialog alert=AlertDialog(
+    insetPadding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+    content: Container(
+      width: 100,
+      height: 100,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text("Loading..."),
+            )
+          ],
+        ),
+      ),
+    ),
+  );
+  showDialog(barrierDismissible: false,
+    context:context,
+    builder:(BuildContext context){
+      return alert;
+    },
+  );
 }
