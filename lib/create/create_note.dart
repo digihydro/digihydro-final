@@ -410,7 +410,7 @@ class note extends State<createNote> {
                               focus_node_title.unfocus();
                               focus_node_content.unfocus();
                               var result = await showDialog(
-                                  barrierDismissible: false,
+                                  barrierDismissible: true,
                                   context: context,
                                   builder: (dialog) {
                                     bool isGenerating = false;

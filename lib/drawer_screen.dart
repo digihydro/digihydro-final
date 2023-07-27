@@ -45,6 +45,48 @@ class drawer extends State<drawerPage> {
                 scrollDirection: Axis.vertical,
                 shrinkWrap: true,
                 query: ref.orderByChild('userId').equalTo(currentUserID),
+                defaultChild:  Wrap(
+                  children: <Widget>[
+                    Container(
+                      alignment: Alignment.center,
+                      margin: EdgeInsets.fromLTRB(0, 65, 0, 10),
+                      child: Icon(
+                        Icons.account_circle,
+                        size: 75,
+                        color: Colors.green,
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.fromLTRB(0, 18, 0, 0),
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                             CircularProgressIndicator(),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    /*Container(
+                        margin: EdgeInsets.fromLTRB(0, 18, 0, 0),
+                        child: Text(
+                          'User Name',
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green[600],
+                          ),
+                        ),
+                      ),*/
+                  ],
+                ),
                 itemBuilder: (BuildContext context, DataSnapshot snapshot,
                     Animation<double> animation, int index) {
                   return Wrap(
@@ -69,15 +111,10 @@ class drawer extends State<drawerPage> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                    snapshot
-                                            .child('firstName')
-                                            .value
-                                            .toString() +
-                                        ' ' +
-                                        snapshot
-                                            .child('lastName')
-                                            .value
-                                            .toString(),
+                                    snapshot.child('firstName').value
+                                        .toString() + ' ' + snapshot
+                                        .child('lastName')
+                                        .value.toString(),
                                     style: TextStyle(
                                       fontSize: 26,
                                       color: Colors.green,

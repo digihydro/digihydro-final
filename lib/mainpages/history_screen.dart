@@ -1,7 +1,7 @@
 import 'package:digihydro/enums/enums.dart';
-import 'package:digihydro/mainpages/chart.dart';
 import 'package:digihydro/mainpages/notif.dart';
 import 'package:digihydro/utils/filter_data.dart';
+import 'package:digihydro/widgets/chart.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:digihydro/drawer_screen.dart';
