@@ -512,7 +512,13 @@ Map<dynamic, double> getValues(Map<dynamic, dynamic> data, Filter filter) {
   } else if (filter == Filter.custom1) {
     maxX = (data['range_x'].length.toDouble() - 1);
     maxX_interval = (data['range_x'].length.toDouble() - 1);
-    vertical_interval = 1;
+
+    if (data['range_x'].length > 31 && data['range_x'].length <= 372) {
+      vertical_interval = data['range_x'].length/12;
+    } else {
+      vertical_interval = 1;
+    }
+
   }
 
   Map<dynamic, double> res = {};

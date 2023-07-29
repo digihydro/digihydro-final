@@ -1,5 +1,5 @@
 import 'package:digihydro/enums/enums.dart';
-import 'package:digihydro/mainpages/chart.dart';
+import 'package:digihydro/widgets/chart.dart';
 import 'package:digihydro/mainpages/history_screen.dart';
 import 'package:digihydro/mainpages/notes_screen.dart';
 import 'package:digihydro/mainpages/notif.dart';
@@ -16,7 +16,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
 final FlutterLocalNotificationsPlugin localNotif =
-    FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin();
 
 class dashBoard extends StatefulWidget {
   @override
@@ -119,7 +119,7 @@ class welcomeScreen extends State<dashBoard> {
                                 children: <Widget>[
                                   Container(
                                     margin:
-                                        const EdgeInsets.fromLTRB(10, 0, 0, 10),
+                                    const EdgeInsets.fromLTRB(10, 0, 0, 10),
                                     child: Text(
                                       'Realtime Stats',
                                       textAlign: TextAlign.justify,
@@ -132,7 +132,7 @@ class welcomeScreen extends State<dashBoard> {
                                   ),
                                   Container(
                                     margin:
-                                        const EdgeInsets.fromLTRB(0, 0, 10, 10),
+                                    const EdgeInsets.fromLTRB(0, 0, 10, 10),
                                     child: GestureDetector(
                                       child: Icon(
                                         Icons.warning_sharp,
@@ -204,11 +204,11 @@ class welcomeScreen extends State<dashBoard> {
                                   Expanded(
                                     child: Text(
                                         snapshot
-                                                .child('Temperature')
-                                                .value
-                                                .toString()
-                                                .replaceAll(
-                                                    RegExp(r'[^\d\.]'), '') +
+                                            .child('Temperature')
+                                            .value
+                                            .toString()
+                                            .replaceAll(
+                                            RegExp(r'[^\d\.]'), '') +
                                             ' °C',
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
@@ -244,11 +244,11 @@ class welcomeScreen extends State<dashBoard> {
                                   Expanded(
                                     child: Text(
                                         snapshot
-                                                .child('Humidity')
-                                                .value
-                                                .toString()
-                                                .replaceAll(
-                                                    RegExp(r'[^\d\.]'), '') +
+                                            .child('Humidity')
+                                            .value
+                                            .toString()
+                                            .replaceAll(
+                                            RegExp(r'[^\d\.]'), '') +
                                             ' %',
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
@@ -287,11 +287,11 @@ class welcomeScreen extends State<dashBoard> {
                                   Expanded(
                                     child: Text(
                                         snapshot
-                                                .child('WaterTemperature')
-                                                .value
-                                                .toString()
-                                                .replaceAll(
-                                                    RegExp(r'[^\d\.]'), '') +
+                                            .child('WaterTemperature')
+                                            .value
+                                            .toString()
+                                            .replaceAll(
+                                            RegExp(r'[^\d\.]'), '') +
                                             ' °C',
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
@@ -327,11 +327,11 @@ class welcomeScreen extends State<dashBoard> {
                                   Expanded(
                                     child: Text(
                                         snapshot
-                                                .child('TotalDissolvedSolids')
-                                                .value
-                                                .toString()
-                                                .replaceAll(
-                                                    RegExp(r'[^\d\.]'), '') +
+                                            .child('TotalDissolvedSolids')
+                                            .value
+                                            .toString()
+                                            .replaceAll(
+                                            RegExp(r'[^\d\.]'), '') +
                                             ' PPM',
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
@@ -367,11 +367,11 @@ class welcomeScreen extends State<dashBoard> {
                                   Expanded(
                                     child: Text(
                                         snapshot
-                                                .child('pH')
-                                                .value
-                                                .toString()
-                                                .replaceAll(
-                                                    RegExp(r'[^\d\.]'), '') +
+                                            .child('pH')
+                                            .value
+                                            .toString()
+                                            .replaceAll(
+                                            RegExp(r'[^\d\.]'), '') +
                                             ' pH',
                                         textAlign: TextAlign.right,
                                         style: TextStyle(
@@ -614,7 +614,7 @@ class welcomeScreen extends State<dashBoard> {
                   ),
                 ],
               ),
-            ), 
+            ),
 
 /*PLANTS CONTAINER */
 
@@ -632,6 +632,7 @@ class welcomeScreen extends State<dashBoard> {
                   ),
                 ],
               ),
+              clipBehavior: Clip.hardEdge,
               child: Column(
                 children: [
                   Row(
@@ -724,22 +725,24 @@ class welcomeScreen extends State<dashBoard> {
                     ],
                   ),
                   Container(
-                    height: 300,
                     child: Stack(
                       children: [
                         Container(
                           height: 250,
                           child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.list_alt_rounded,
-                                  size: 50,
-                                  color: Colors.green,
-                                ),
-                                Text("No Data")
-                              ],
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 35),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.list_alt_rounded,
+                                    size: 50,
+                                    color: Colors.green,
+                                  ),
+                                  Text("No Data")
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -751,6 +754,7 @@ class welcomeScreen extends State<dashBoard> {
                             query: ref.orderByChild('userId').equalTo(currentUserID).limitToFirst(10),
                             itemBuilder: (BuildContext context, DataSnapshot snapshot,
                                 Animation<double> animation, int index) {
+
                               //if (snapshot == null || snapshot.value == null)
                               if (snapshot.value == null) {
                                 return  Icon(
@@ -764,75 +768,79 @@ class welcomeScreen extends State<dashBoard> {
                                     snapshot.child('greenhouse').value?.toString() ?? '';
                                 final reserName =
                                     snapshot.child('reserv').value?.toString() ?? '';
-                                return ListView(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  children: [
-                                    IntrinsicHeight(
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        //mainAxisSize: MainAxisSize.max,
-                                        //crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  EdgeInsets.symmetric(horizontal: 8.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '${index + 1}. ' + plantName,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Color(0xFF4f4f4f),
+                                return Container(
+                                  height: 250,
+                                  color: Colors.white,
+                                  child: ListView(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    children: [
+                                      IntrinsicHeight(
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          //mainAxisSize: MainAxisSize.max,
+                                          //crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                EdgeInsets.symmetric(horizontal: 8.0),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '${index + 1}. ' + plantName,
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Color(0xFF4f4f4f),
+                                                      ),
                                                     ),
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  EdgeInsets.symmetric(horizontal: 14.0),
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    greenhouse,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Color(0xFF4f4f4f),
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                EdgeInsets.symmetric(horizontal: 14.0),
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      greenhouse,
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Color(0xFF4f4f4f),
+                                                      ),
+                                                      textAlign: TextAlign.center,
                                                     ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          Expanded(
-                                            child: Padding(
-                                              padding:
-                                                  EdgeInsets.symmetric(horizontal: 14.0),
-                                              child: Column(
-                                                children: [
-                                                  Text(
-                                                    reserName,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      color: Color(0xFF4f4f4f),
+                                            Expanded(
+                                              child: Padding(
+                                                padding:
+                                                EdgeInsets.symmetric(horizontal: 14.0),
+                                                child: Column(
+                                                  children: [
+                                                    Text(
+                                                      reserName,
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        color: Color(0xFF4f4f4f),
+                                                      ),
+                                                      textAlign: TextAlign.center,
                                                     ),
-                                                    textAlign: TextAlign.center,
-                                                  ),
-                                                ],
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    )
-                                  ],
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 );
                               }
                             },
@@ -860,6 +868,7 @@ class welcomeScreen extends State<dashBoard> {
                   ),
                 ],
               ),
+              clipBehavior: Clip.hardEdge,
               child: Column(
                 children: [
                   Row(
@@ -914,7 +923,6 @@ class welcomeScreen extends State<dashBoard> {
                     endIndent: 10,
                   ),
                   Container(
-                    height: 300,
                     child: Stack(
                       children: [
                         Container(
@@ -964,7 +972,9 @@ class welcomeScreen extends State<dashBoard> {
                                             children: [
                                               Expanded(
                                                 child: Text(
-                                                  snapshot.child('title').value.toString(),
+                                                  snapshot.child('title').value.toString() != ""
+                                                      ? snapshot.child('title').value.toString()
+                                                      : "[No Subject]",
                                                   style: TextStyle(
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.bold,
