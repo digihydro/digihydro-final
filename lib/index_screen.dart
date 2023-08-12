@@ -12,6 +12,7 @@ import 'package:digihydro/login/forgot_pass1.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class IndexScreen extends StatefulWidget {
   @override
@@ -43,12 +44,17 @@ class index extends State<IndexScreen> {
         email: userEmail.text.trim(),
         password: userPass.text.trim(),
       );
+
       final currentUser = auth.currentUser;
       if (currentUser != null) {
         currentUserID = currentUser.uid;
       } else {
         currentUserID = '';
       }
+
+      /*SharedPreferences pref = await SharedPreferences.getInstance();
+      pref.setString('email', userEmail.text.trim());*/
+
       // Reset the failed attempts in the database as the login was successful
       await FirebaseDatabase.instance.ref('FailedAttempts/$currentUserID').set(
           {'attempts': 0, 'timestamp': DateTime.now().millisecondsSinceEpoch});
