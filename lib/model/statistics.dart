@@ -130,10 +130,10 @@ class Type {
 class StatisticsData {
 
   int? count;
-  double? min;
-  double? max;
-  double? current_value;
-  double? total_value;
+  num? min;
+  num? max;
+  num? current_value;
+  num? total_value;
 
   StatisticsData({
     required this.count,

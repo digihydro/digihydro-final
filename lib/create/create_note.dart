@@ -150,6 +150,7 @@ class note extends State<createNote> {
                 padding: const EdgeInsets.fromLTRB(0, 0, 0, 80),
                 child: ListView(
                   shrinkWrap: true,
+                  physics: ClampingScrollPhysics(),
                   children: <Widget>[
                     Container(
                       margin: EdgeInsets.only(top: 10, left: 10, right: 10),
@@ -202,6 +203,8 @@ class note extends State<createNote> {
                             border: Border.all(color: Colors.grey, width: 1.0)),
                         margin: EdgeInsets.only(top: 10, left: 10, right: 10),
                         child: FirebaseAnimatedList(
+                            shrinkWrap: true,
+                            physics: ClampingScrollPhysics(),
                             query: destinationReference,
                             itemBuilder: (BuildContext context,
                                 DataSnapshot snapshot,
@@ -336,6 +339,7 @@ class note extends State<createNote> {
                         if (snapshot_list != null) {
                           return ListView.builder(
                             shrinkWrap: true,
+                            physics: ClampingScrollPhysics(),
                             itemCount: snapshot_list?.length,
                             itemBuilder: (context, i) {
                               return Container(
@@ -421,7 +425,7 @@ class note extends State<createNote> {
                                       return AlertDialog(
                                         shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.all(
-                                                Radius.circular(15))),
+                                                Radius.circular(10))),
                                         titlePadding:
                                             EdgeInsetsDirectional.fromSTEB(
                                                 10, 30, 10, 15),
@@ -672,19 +676,8 @@ class note extends State<createNote> {
                                                           validation =
                                                               "Fields cannot be empty!";
                                                           return;
-                                                        } else if (Jiffy.parse(
-                                                                end_date.text
-                                                                    .trim(),
-                                                                pattern:
-                                                                    "MM-dd-yyyy")
-                                                            .dateTime
-                                                            .isBefore(Jiffy.parse(
-                                                                    start_date
-                                                                        .text
-                                                                        .trim(),
-                                                                    pattern:
-                                                                        "MM-dd-yyyy")
-                                                                .dateTime)) {
+                                                        } else if (Jiffy.parse(end_date.text.trim(), pattern: "MM-dd-yyyy").dateTime
+                                                            .isBefore(Jiffy.parse(start_date.text.trim(), pattern: "MM-dd-yyyy").dateTime)) {
                                                           hasError = true;
                                                           validation =
                                                               "End date is greater then Start date!";

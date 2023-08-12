@@ -10,15 +10,15 @@ class MinMax {
     List<MinAndMax> min_max = [];
     data.forEach((key, value) {
       if(value .length != 0) {
-        var _min = value.map<double>((e) => e["min"]).reduce(min);
+        var _min = value.map<num>((e) => e["min"]).reduce(min);
         var min_data = value.where((i) => i["min"] == _min).toList();
         print(min_data);
 
-        var _max = value.map<double>((e) => e["max"]).reduce(max);
+        var _max = value.map<num>((e) => e["max"]).reduce(max);
         var max_data = value.where((i) => i["max"] == _max).toList();
         print(max_data);
 
-        var _sum_value = value.map<double>((e) => e["total_value"]).reduce((sum,currentValue)=>sum+currentValue);
+        var _sum_value = value.map<num>((e) => e["total_value"]).reduce((sum,currentValue)=>sum+currentValue);
         var _sum_total = value.map<int>((e) => e["count"]).reduce((sum,currentValue)=>sum+currentValue);
         var _ave = double.parse((_sum_value / _sum_total).toStringAsFixed(2));
 
@@ -27,8 +27,8 @@ class MinMax {
         min_max.add(MinAndMax(
             title: key,
             details: details,
-            min: _min,
-            max: _max,
+            min: _min.toDouble(),
+            max: _max.toDouble(),
             ave: _ave));
       } else {
         List<Map<String, dynamic>> details = [];

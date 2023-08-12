@@ -28,6 +28,7 @@ class Chart extends StatefulWidget {
 
 class chartScreen extends State<Chart> {
   final ScrollController controller = ScrollController();
+  final page_controller = PageController();
   List<Color> gradientColors = [
     Colors.teal,
     Colors.amberAccent,
@@ -52,7 +53,7 @@ class chartScreen extends State<Chart> {
               Map<dynamic, dynamic> data = snapshot.data;
 
               Widget chart = ShowIndividualChart(
-                  data, widget.filter, gradientColors, widget.axis, controller);
+                  data, widget.filter, gradientColors, widget.axis, page_controller);
               if (widget.showAll) {
                 chart = ShowAllChart(data, widget.filter, gradientColors);
               }
@@ -61,6 +62,39 @@ class chartScreen extends State<Chart> {
                   child: Column(
                 children: [
                   Container(child: chart),
+                  Visibility(
+                    visible: !widget.showAll,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        InkWell(
+                          onTap: () async {
+                            if (page_controller.page == 0 ) {
+                              return;
+                            }
+                            page_controller.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+                          },
+                          child: Container(
+                              padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
+                              child: Icon(Icons.arrow_back)
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () async {
+                            if (page_controller.page == 4) {
+                              return;
+                            }
+                            page_controller.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.ease);
+                          },
+                          child: Container(
+                              padding: const EdgeInsets.fromLTRB(50, 0, 50, 0),
+                              child: Icon(Icons.arrow_forward)
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                   Visibility(
                     visible: !widget.isFromDashboard,
                     child: Column(
@@ -117,45 +151,11 @@ class chartScreen extends State<Chart> {
                                                         children: <TextSpan>[
                                                           TextSpan(
                                                             text:
-                                                                "Date Range\n",
+                                                                "Information:\n\n",
                                                             style: TextStyle(
                                                               fontWeight:
                                                                   FontWeight
                                                                       .bold,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: 'From: ',
-                                                            style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text:
-                                                                "${getRangeTitle(widget.filter, data["range_x"][0]).toString()}\t\t",
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.black,
-                                                              fontSize: 14,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: 'To: ',
-                                                            style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                            ),
-                                                          ),
-                                                          TextSpan(
-                                                            text:
-                                                                "${getRangeTitle(widget.filter, data["range_x"][data["range_x"].length - 1]).toString()}\n\n",
-                                                            style: TextStyle(
-                                                              color:
-                                                                  Colors.black,
-                                                              fontSize: 14,
                                                             ),
                                                           ),
                                                           TextSpan(
@@ -271,7 +271,66 @@ class chartScreen extends State<Chart> {
                           endIndent: 10,
                         ),
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Container(child: RichText(
+                              text: TextSpan(
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 14,
+                                ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                    text:
+                                    "*Date Range:\n",
+                                    style: TextStyle(
+                                      fontWeight:
+                                      FontWeight
+                                          .bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: '*From: ',
+                                    style: TextStyle(
+                                      fontWeight:
+                                      FontWeight
+                                          .bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                    "${getRangeTitle(widget.filter, data["range_x"][0]).toString()}\t\t",
+                                    style: TextStyle(
+                                      color:
+                                      Colors.black,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: 'To: ',
+                                    style: TextStyle(
+                                      fontWeight:
+                                      FontWeight
+                                          .bold,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                    "${getRangeTitle(widget.filter, data["range_x"][data["range_x"].length - 1]).toString()}",
+                                    style: TextStyle(
+                                      color:
+                                      Colors.black,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
                           child: Table(
                             border: TableBorder.all(),
                             columnWidths: {
@@ -367,115 +426,109 @@ Widget ShowAllChart(
 
 //show chart individually
 Widget ShowIndividualChart(Map<dynamic, dynamic> data, Filter filter,
-    List<Color> gradientColors, Axis axis, ScrollController controller) {
+    List<Color> gradientColors, Axis axis, PageController page_controller) {
   return Builder(builder: (context) {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: 300,
-      child: Scrollbar(
-        thickness: 15.0,
-        thumbVisibility: true,
-        controller: controller,
-        child: ListView.builder(
-          controller: controller,
-          itemCount: data["spots"].length,
-          shrinkWrap: true,
-          padding: EdgeInsets.zero,
-          scrollDirection: axis,
-          itemBuilder: (BuildContext context, int index) {
-            List<FlSpot> _data = [];
-            double maxY = 0;
-            double interval = 0;
-            double reserve_size = 0;
-            String title = "";
+      child: PageView.builder(
+        controller: page_controller,
+        itemCount: data["spots"].length,
+        scrollDirection: axis,
+        physics: BouncingScrollPhysics(),
+        itemBuilder: (BuildContext context, int index) {
+          List<FlSpot> _data = [];
+          double maxY = 0;
+          double interval = 0;
+          double reserve_size = 0;
+          String title = "";
 
-            switch (index) {
-              case 0:
-                _data = data["spots"][Constant.air_temperature];
-                title = "AIR TEMPERATURE";
-                maxY = 100;
-                interval = 20;
-                reserve_size = 35;
-                break;
-              case 1:
-                _data = data["spots"][Constant.water_temperature];
-                title = "WATER TEMPERATURE";
-                maxY = 100;
-                interval = 20;
-                reserve_size = 35;
-                break;
-              case 2:
-                _data = data["spots"][Constant.humidity];
-                title = "HUMIDITY";
-                maxY = 100;
-                interval = 20;
-                reserve_size = 35;
-                break;
-              case 3:
-                _data = data["spots"][Constant.ph];
-                title = "WATER ACIDITY";
-                maxY = 100;
-                interval = 20;
-                reserve_size = 35;
-                break;
-              case 4:
-                _data = data["spots"][Constant.tds];
-                title = "TOTAL DISOLVED SOLIDS";
-                maxY = 2000;
-                interval = 500;
-                reserve_size = 50;
-                break;
-            }
+          switch (index) {
+            case 0:
+              _data = data["spots"][Constant.air_temperature];
+              title = "AIR TEMPERATURE";
+              maxY = 100;
+              interval = 20;
+              reserve_size = 35;
+              break;
+            case 1:
+              _data = data["spots"][Constant.water_temperature];
+              title = "WATER TEMPERATURE";
+              maxY = 100;
+              interval = 20;
+              reserve_size = 35;
+              break;
+            case 2:
+              _data = data["spots"][Constant.humidity];
+              title = "HUMIDITY";
+              maxY = 100;
+              interval = 20;
+              reserve_size = 35;
+              break;
+            case 3:
+              _data = data["spots"][Constant.ph];
+              title = "WATER ACIDITY";
+              maxY = 30;
+              interval = 5;
+              reserve_size = 35;
+              break;
+            case 4:
+              _data = data["spots"][Constant.tds];
+              title = "TOTAL DISOLVED SOLIDS";
+              maxY = 2000;
+              interval = 500;
+              reserve_size = 50;
+              break;
+          }
 
-            Map<dynamic, double> values = getValues(data, filter);
-            double maxX = values["maxX"]!;
-            double maxX_interval = values["maxX_interval"]!;
-            double vertical_interval = values["vertical_interval"]!;
+          Map<dynamic, double> values = getValues(data, filter);
+          double maxX = values["maxX"]!;
+          double maxX_interval = values["maxX_interval"]!;
+          double vertical_interval = values["vertical_interval"]!;
 
-            return Builder(builder: (context) {
-              return Container(
-                width: MediaQuery.of(context).size.width,
-                height: 300,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 20, 10),
-                  child: Column(
-                    children: [
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(
-                                10, 0, 10, 10),
-                            child: Text('$title'),
-                          ),
-                        ],
-                      ),
-                      Flexible(
-                        child: LineChart(
-                          LineChartData(
-                            borderData: flBorderData(),
-                            gridData: flGridData(vertical_interval),
-                            titlesData: flTitlesData(data, filter,
-                                maxX_interval, interval, reserve_size),
-                            lineTouchData:
-                                lineTouchData(filter, data, index: index),
-                            maxY: maxY,
-                            minY: 0,
-                            minX: 0,
-                            maxX: maxX,
-                            lineBarsData: [
-                              lineChartBarData(_data, Colors.green, false),
-                            ],
-                          ),
+          return Builder(builder: (context) {
+            return Container(
+              width: MediaQuery.of(context).size.width,
+              height: 300,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 0, 10),
+                child: Column(
+                  children: [
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                              10, 0, 10, 10),
+                          child: Text('$title'),
+                        ),
+                      ],
+                    ),
+                    Flexible(
+                      child: LineChart(
+                        LineChartData(
+                          borderData: flBorderData(),
+                          gridData: flGridData(vertical_interval),
+                          titlesData: flTitlesData(data, filter,
+                              maxX_interval, interval, reserve_size),
+                          lineTouchData:
+                              lineTouchData(filter, data, index: index),
+                          maxY: maxY,
+                          minY: 0,
+                          minX: 0,
+                          maxX: maxX,
+                          lineBarsData: [
+                            lineChartBarData(_data, Colors.green, false),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              );
-            });
-          },
-        ),
+              ),
+            );
+          });
+        },
       ),
     );
   });
@@ -513,7 +566,7 @@ Map<dynamic, double> getValues(Map<dynamic, dynamic> data, Filter filter) {
     maxX = (data['range_x'].length.toDouble() - 1);
     maxX_interval = (data['range_x'].length.toDouble() - 1);
 
-    if (data['range_x'].length > 31 && data['range_x'].length <= 372) {
+    if (data['range_x'].length > 31) {
       vertical_interval = data['range_x'].length/12;
     } else {
       vertical_interval = 1;
