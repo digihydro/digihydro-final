@@ -11,6 +11,7 @@ class reservoirPage extends StatefulWidget {
 }
 
 class reserv extends State<reservoirPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final auth = FirebaseAuth.instance;
   late String currentUserID;
   final ref = FirebaseDatabase.instance.ref('Reservoir');
@@ -27,6 +28,7 @@ class reserv extends State<reservoirPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       //endFloat, for padding and location
       floatingActionButton: FloatingActionButton(
@@ -37,145 +39,155 @@ class reserv extends State<reservoirPage> {
               MaterialPageRoute(builder: (context) => DropDownReserv()));
         },
       ),
-      backgroundColor: Color.fromARGB(255, 201, 237, 220),
+      /*backgroundColor: Color.fromARGB(255, 201, 237, 220),*/
+      backgroundColor: Colors.white,
       drawer: drawerPage(),
-      appBar: AppBar(
-        backgroundColor: Colors.green,
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-          size: 40.00,
-        ),
-        actions: <Widget>[
-          Container(
-            margin: EdgeInsets.fromLTRB(0, 5, 15, 0),
-            child: Align(
-              child: Image.asset(
-                'images/logo_white.png',
-                scale: 8,
-              ),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            backgroundColor: Colors.green,
+            pinned: true,
+            leading: InkWell(
+                onTap: () {
+                  _scaffoldKey.currentState?.openDrawer();
+                },
+                child: Icon(Icons.menu, size: 35,)
             ),
-          ),
-        ],
-      ),
-
-      body: Column(
-        children: [
-          Container(
-            child: Row(
-              children: <Widget>[
-                Container(
-                  margin: const EdgeInsets.fromLTRB(10, 10, 0, 10),
-                  child: Icon(
-                    Icons.water,
-                    size: 50,
-                    color: Colors.green,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  child: Image.asset(
+                      "images/DHIconW.png",
+                      fit: BoxFit.fitHeight
                   ),
                 ),
+              ),
+            ],
+            expandedHeight: 150,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Image.asset(
+                  "images/reservoirs.png",
+                  fit: BoxFit.cover
+              ),
+              title:  Container(
+                margin: EdgeInsets.fromLTRB(10, 10, 10, 0),
+                child:
                 Container(
-                  margin: const EdgeInsets.fromLTRB(10, 10, 5, 10),
                   child: Text(
-                    'Reserviors',
+                    'RESERVOIRS',
                     textAlign: TextAlign.justify,
                     style: TextStyle(
-                      fontSize: 26,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey[600],
+                      color: Colors.white,
                     ),
                   ),
                 ),
-              ],
+              ),
+              centerTitle: true,
             ),
           ),
-          Expanded(
-            child: FirebaseAnimatedList(
-              query: ref.orderByChild('userId').equalTo(currentUserID),
-              itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                  Animation<double> animation, int index) {
-                return Wrap(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsets.fromLTRB(0, 12, 0, 12),
+              child: Column(
+                children: [
+                  FirebaseAnimatedList(
+                    padding: EdgeInsets.fromLTRB(0, 0, 0, 100),
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    query: ref.orderByChild('userId').equalTo(currentUserID),
+                    itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                        Animation<double> animation, int index) {
+                      return Wrap(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                  snapshot.child('reservName').value.toString(),
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    color: Theme.of(context).primaryColor,
-                                    fontWeight: FontWeight.bold,
-                                  )),
-                            ],
-                          ),
-                          Row(
-                            children: [Text(' ')],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                  'Grow Method: ' +
-                                      snapshot
-                                          .child('growMethod')
-                                          .value
-                                          .toString(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Theme.of(context).primaryColor,
-                                  )),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                  'Nutrient Solution: ' +
-                                      snapshot
-                                          .child('nutrientSol')
-                                          .value
-                                          .toString(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Theme.of(context).primaryColor,
-                                  )),
-                            ],
-                          ),
-                          Row(
-                            children: [Text(' ')],
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                  'Greenhouse: ' +
-                                      snapshot.child('greenH').value.toString(),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Theme.of(context).primaryColor,
-                                  )),
-                            ],
+                          Container(
+                            margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 5,
+                                  blurRadius: 7,
+                                  offset: Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                        snapshot.child('reservName').value.toString(),
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        )),
+                                  ],
+                                ),
+                                Row(
+                                  children: [Text(' ')],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                        'Grow Method: ' +
+                                            snapshot
+                                                .child('growMethod')
+                                                .value
+                                                .toString(),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).primaryColor,
+                                        )),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                        'Nutrient Solution: ' +
+                                            snapshot
+                                                .child('nutrientSol')
+                                                .value
+                                                .toString(),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).primaryColor,
+                                        )),
+                                  ],
+                                ),
+                                Row(
+                                  children: [Text(' ')],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                        'Greenhouse: ' +
+                                            snapshot.child('greenH').value.toString(),
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          color: Theme.of(context).primaryColor,
+                                        )),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
                         ],
-                      ),
-                    ),
-                  ],
-                );
-              },
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
+          )
         ],
       ),
     );

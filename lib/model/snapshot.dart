@@ -43,7 +43,7 @@ class Range {
   );
 
   Map<String, dynamic> asMap() => {
-    'title' : start_date,
+    'start_date' : start_date,
     'end_date' : end_date,
   };
 
@@ -68,6 +68,72 @@ class Data {
   Map<String, dynamic> asMap() => {
     'range_x' : range_x,
     'spots' : spots,
+  };
+
+}
+
+class Ranges {
+
+  Batch? initial_batch;
+  Batch? compare_batch;
+  double? duration;
+
+  Ranges({
+    this.initial_batch,
+    this.compare_batch,
+    this.duration,
+  });
+
+  Ranges.fromMap(Map map)
+      : this(
+    initial_batch : map['initial_batch'],
+    compare_batch : map['compare_batch'],
+    duration : map['duration'],
+  );
+
+  Map<String, dynamic> asMap() => {
+    'initial_batch' : initial_batch,
+    'compare_batch' : compare_batch,
+    'duration' : duration,
+  };
+
+}
+
+class Batch {
+
+  String? id;
+  String? name;
+  Range? range;
+  List<String>? range_list;
+  String? status;
+  int? batch_duration;
+
+  Batch({
+    this.id,
+    this.name,
+    this.range,
+    this.range_list,
+    this.status,
+    this.batch_duration,
+  });
+
+  Batch.fromMap(Map map)
+      : this(
+    id : map['id'],
+    name : map['name'],
+    range : map['range'],
+    range_list : map['range_list'],
+    status : map['status'],
+    batch_duration : map['batch_duration'],
+  );
+
+  Map<String, dynamic> asMap() => {
+    'id' : id,
+    'name' : name,
+    'range' : range,
+    'range_list' : range_list,
+    'status' : status,
+    'batch_duration' : batch_duration,
   };
 
 }

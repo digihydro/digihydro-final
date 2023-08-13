@@ -600,7 +600,7 @@ class welcomeScreen extends State<dashBoard> {
                   ),
                   Container(
                     width: double.infinity,
-                    height: 300,
+                    height: showAll ? 300 : 350,
                     child: Chart(filter: filter, showAll: showAll, axis: Axis.horizontal, isFromDashboard: true,),
                   ),
                   Row(
@@ -686,167 +686,203 @@ class welcomeScreen extends State<dashBoard> {
                     indent: 10,
                     endIndent: 10,
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(15, 0, 0, 7),
-                        child: Text(
-                          'Plant Name',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Color(0xFF272727),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 0, 7),
-                        child: Text(
-                          'Greenhouse',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Color(0xFF272727),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(0, 0, 20, 7),
-                        child: Text(
-                          'Reservoir',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Color(0xFF272727),
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    child: Stack(
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(15, 0, 15, 0),
+                    child: Table(
+                      border: TableBorder.all(),
                       children: [
-                        Container(
-                          height: 250,
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(0, 0, 0, 35),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.list_alt_rounded,
-                                    size: 50,
-                                    color: Colors.green,
-                                  ),
-                                  Text("No Data")
-                                ],
+                        TableRow(children: [
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                            child: Text(
+                              'Plant Name',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color(0xFF272727),
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                            child: Text(
+                              'Greenhouse',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color(0xFF272727),
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                            child: Text(
+                              'Reservoir',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color(0xFF272727),
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ]),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                    child: Container(
+                      child: Stack(
+                        children: [
+                          Container(
+                            height: 250,
+                            child: Center(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(0, 0, 0, 35),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.list_alt_rounded,
+                                      size: 50,
+                                      color: Colors.green,
+                                    ),
+                                    Text("No Data")
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        Container(
-                          color: Colors.white,
-                          child: FirebaseAnimatedList(
-                            shrinkWrap: true,
-                            physics: ClampingScrollPhysics(),
-                            query: ref.orderByChild('userId').equalTo(currentUserID).limitToFirst(10),
-                            itemBuilder: (BuildContext context, DataSnapshot snapshot,
-                                Animation<double> animation, int index) {
+                          Container(
+                            height: 250,
+                            color: Colors.white,
+                            child: FirebaseAnimatedList(
+                              shrinkWrap: true,
+                              physics: ClampingScrollPhysics(),
+                              query: ref.orderByChild('userId').equalTo(currentUserID).limitToFirst(10),
+                              itemBuilder: (BuildContext context, DataSnapshot snapshot,
+                                  Animation<double> animation, int index) {
 
-                              //if (snapshot == null || snapshot.value == null)
-                              if (snapshot.value == null) {
-                                return  Icon(
-                                  Icons.list_alt_rounded,
-                                  size: 25,
-                                );
-                              } else {
-                                final plantName =
-                                    snapshot.child('batchName').value?.toString() ?? '';
-                                final greenhouse =
-                                    snapshot.child('greenhouse').value?.toString() ?? '';
-                                final reserName =
-                                    snapshot.child('reserv').value?.toString() ?? '';
-                                return Container(
-                                  height: 250,
-                                  color: Colors.white,
-                                  child: ListView(
-                                    shrinkWrap: true,
-                                    physics: NeverScrollableScrollPhysics(),
-                                    children: [
-                                      IntrinsicHeight(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          //mainAxisSize: MainAxisSize.max,
-                                          //crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: Padding(
-                                                padding:
-                                                EdgeInsets.symmetric(horizontal: 8.0),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      '${index + 1}. ' + plantName,
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Color(0xFF4f4f4f),
-                                                      ),
+                                //if (snapshot == null || snapshot.value == null)
+                                if (snapshot.value == null) {
+                                  return  Icon(
+                                    Icons.list_alt_rounded,
+                                    size: 25,
+                                  );
+                                } else {
+                                  final plantName =
+                                      snapshot.child('batchName').value?.toString() ?? '';
+                                  final greenhouse =
+                                      snapshot.child('greenhouse').value?.toString() ?? '';
+                                  final reserName =
+                                      snapshot.child('reserv').value?.toString() ?? '';
+
+                                  return Padding(
+                                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                                    child: Table(
+                                      border: TableBorder.all(),
+                                      children: [
+                                        TableRow(children: [
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            child: Text('${index + 1}.' + plantName,
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                              ),
+                                              textAlign: TextAlign.start,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            child: Text(greenhouse,
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(5, 5, 5, 5),
+                                            child: Text(reserName,
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ]),
+                                      ],
+                                    ),
+                                  );
+
+                                  return Container(
+                                    color: Colors.white,
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      children: [
+                                        IntrinsicHeight(
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            //mainAxisSize: MainAxisSize.max,
+                                            //crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                  EdgeInsets.symmetric(horizontal: 8.0),
+                                                  child: Text(
+                                                    '${index + 1}. ' + plantName,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xFF4f4f4f),
                                                     ),
-                                                  ],
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            Expanded(
-                                              child: Padding(
-                                                padding:
-                                                EdgeInsets.symmetric(horizontal: 14.0),
-                                                child: Column(
-                                                  children: [
-                                                    Text(
-                                                      greenhouse,
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Color(0xFF4f4f4f),
-                                                      ),
-                                                      textAlign: TextAlign.center,
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                  EdgeInsets.symmetric(horizontal: 8.0),
+                                                  child: Text(
+                                                    greenhouse,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xFF4f4f4f),
                                                     ),
-                                                  ],
+                                                    textAlign: TextAlign.center,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                            Expanded(
-                                              child: Padding(
-                                                padding:
-                                                EdgeInsets.symmetric(horizontal: 14.0),
-                                                child: Column(
-                                                  children: [
-                                                    Text(
-                                                      reserName,
-                                                      style: TextStyle(
-                                                        fontSize: 16,
-                                                        color: Color(0xFF4f4f4f),
-                                                      ),
-                                                      textAlign: TextAlign.center,
+                                              Expanded(
+                                                child: Padding(
+                                                  padding:
+                                                  EdgeInsets.symmetric(horizontal: 8.0),
+                                                  child: Text(
+                                                    reserName,
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                      color: Color(0xFF4f4f4f),
                                                     ),
-                                                  ],
+                                                    textAlign: TextAlign.center,
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                );
-                              }
-                            },
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -856,6 +892,7 @@ class welcomeScreen extends State<dashBoard> {
 //Notes Container
             Container(
               margin: EdgeInsets.fromLTRB(10, 10, 10, 10),
+              padding: EdgeInsets.fromLTRB(0, 0, 0, 10),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10),
@@ -999,7 +1036,10 @@ class welcomeScreen extends State<dashBoard> {
                                             children: [
                                               Column(
                                                 children: [
-                                                  Text(snapshot.child('currentData').value.toString().replaceAll(RegExp("{|}"),"").replaceAll(RegExp(","),'\n').replaceAll(RegExp("0420:"),''))
+                                                  Text(
+                                                    snapshot.child('currentData').value.toString().replaceAll(RegExp("{|}"),"").replaceAll(RegExp(","),'\n').replaceAll(RegExp("0420:"),''),
+                                                    style: TextStyle(fontSize: 15),
+                                                  )
                                                 ],
                                               ),
                                             ],
@@ -1023,7 +1063,7 @@ class welcomeScreen extends State<dashBoard> {
               children: [
                 Divider(
                   color: Colors.grey,
-                  thickness: 2,
+                  thickness: 1,
                   indent: 25,
                   endIndent: 25,
                 ),

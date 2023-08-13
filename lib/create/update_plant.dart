@@ -1,4 +1,5 @@
 // ignore_for_file: unused_import
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
@@ -11,41 +12,63 @@ import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 
-class DropDown1 extends StatefulWidget {
+class updatePlant extends StatefulWidget {
+  updatePlant({Key? key, this.snapshot}) : super(key: key);
+
+  final snapshot;
   @override
-  addPlant createState() => addPlant();
+  _updatePlant createState() => _updatePlant();
 }
 
-class addPlant extends State<DropDown1> {
+class _updatePlant extends State<updatePlant> {
   TextEditingController batch = TextEditingController();
   TextEditingController varty = TextEditingController();
   TextEditingController typ = TextEditingController();
   TextEditingController res = TextEditingController();
   TextEditingController greenh = TextEditingController();
   TextEditingController date = TextEditingController();
+  TextEditingController endDate = TextEditingController();
   TextEditingController userDate = TextEditingController();
 
   var _value = "-1";
   var _selectedMethod = "-1";
   var _selectedNutrient = "-1";
-
   final fb = FirebaseDatabase.instance;
+  var key;
+
+  @override
+  void initState() {
+    super.initState();
+    var snapshot = widget.snapshot;
+    var _key = snapshot.key;
+
+    setState(() {
+      key = _key;
+      batch.text = snapshot.child('batchName').value.toString();
+      varty.text = snapshot.child('plantVar').value.toString();
+      typ.text = snapshot.child('plantType').value.toString();
+      res.text = snapshot.child('reserv').value.toString();
+      greenh.text = snapshot.child('greenhouse').value.toString();
+      date.text = snapshot.child('sowDate').value.toString();
+      endDate.text = snapshot.child('endDate').value.toString();
+      _value = snapshot.child('sowType').value.toString();
+      _selectedMethod = snapshot.child('growMethod').value.toString();
+      _selectedNutrient = snapshot.child('nutrientSol').value.toString();
+    });
+
+  }
 
   @override
   Widget build(BuildContext context) {
-    var rng = Random();
-    var num = rng.nextInt(10000);
 
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    final ref = fb.ref().child('Plants/$num');
-    final currentUser = _auth.currentUser;
+    final ref = FirebaseDatabase.instance.ref("Plants/$key");
 
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 201, 237, 220),
       appBar: AppBar(
         title: Container(
           child: Text(
-            "Add Plant",
+            "Update Plant",
             style: TextStyle(
               color: Colors.white,
             ),
@@ -218,7 +241,6 @@ class addPlant extends State<DropDown1> {
                   ),
                 ),
               ),
-
               Container(
                 margin: EdgeInsets.fromLTRB(30, 0, 0, 0),
                 child: Text(
@@ -247,7 +269,7 @@ class addPlant extends State<DropDown1> {
                   onTap: () async {
                     DateTime? pickedDate = await showDatePicker(
                       context: context,
-                      initialDate: DateTime.now(),
+                      initialDate: date.text.isEmpty ? DateTime.now() : DateFormat("MM/dd/yyyy").parse(date.text),
                       firstDate: DateTime(1900),
                       lastDate: DateTime(3000),
                     );
@@ -255,6 +277,47 @@ class addPlant extends State<DropDown1> {
                     if (pickedDate != null) {
                       setState(() {
                         date.text = DateFormat('MM/dd/yyyy').format(pickedDate);
+                      });
+                    }
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.fromLTRB(30, 0, 0, 0),
+                child: Text(
+                  "End Date:",
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey[600],
+                    height: 1.5,
+                  ),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.fromLTRB(40, 0, 40, 0),
+                margin: EdgeInsets.only(top: 10, left: 10, right: 10),
+                child: TextField(
+                  controller: endDate,
+                  readOnly: true,
+                  enableInteractiveSelection: true,
+                  decoration: InputDecoration(
+                    //icon: Icon(Icons.calendar_today_rounded),
+                    labelText: 'Enter Date:',
+                    border: OutlineInputBorder(),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.all(10.0),
+                  ),
+                  onTap: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: endDate.text.isEmpty ? DateTime.now() : DateFormat("MM/dd/yyyy").parse(endDate.text),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime(3000),
+                    );
+
+                    if (pickedDate != null) {
+                      setState(() {
+                        endDate.text = DateFormat('MM/dd/yyyy').format(pickedDate);
                       });
                     }
                   },
@@ -389,13 +452,10 @@ class addPlant extends State<DropDown1> {
                   },
                 ),
               ),
-
-
-
               Container(
                 margin: EdgeInsets.fromLTRB(240, 25, 40, 40),
                 child: ElevatedButton(
-                  child: Text('ADD'),
+                  child: Text('Update'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     shape: RoundedRectangleBorder(
@@ -407,23 +467,22 @@ class addPlant extends State<DropDown1> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  onPressed: () {
-                    ref.set({
+                  onPressed: () async {
+                    await ref.update({
                       "batchName": batch.text,
                       "plantVar": varty.text,
                       "plantType": typ.text,
                       "reserv": res.text,
                       "greenhouse": greenh.text,
                       "sowDate": date.text,
-                      "endDate": "",
-                      "status": "ongoing",
+                      "endDate": endDate.text,
+                      "status": endDate.text.isEmpty ? "ongoing": "completed",
                       "sowType": _value,
                       "growMethod": _selectedMethod,
                       "nutrientSol": _selectedNutrient,
-                      "userId": currentUser?.uid,
                     }).asStream();
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => plantPage()));
+
+                    Navigator.pop(context);
                   },
                 ),
               )

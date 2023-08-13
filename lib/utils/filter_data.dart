@@ -27,17 +27,17 @@ class FilterData {
     if(filter != Filter.custom0 && filter != Filter.custom1) {
       String params = getFilter(filter);
       return FirebaseDatabase.instance.ref(node)
-          .orderByKey()
-          .startAt(params)
+          .orderByChild("timestamp")
+          .startAt(getTimeStamp(filter, params))
           .get();
 
     } else {
       String start_date = getFilter(filter, date: date_range?.start_date);
       String end_date = getFilter(filter, date: date_range?.end_date);
       return FirebaseDatabase.instance.ref(node)
-          .orderByKey()
-          .startAt(start_date)
-          .endAt(end_date)
+          .orderByChild("timestamp")
+          .startAt(getTimeStamp(filter, start_date))
+          .endAt(getTimeStamp(filter, end_date))
           .get();
     }
   }
@@ -179,6 +179,27 @@ class FilterData {
         DateTime _date = DateFormat(pattern).parse(date!);
         return DateFormat(pattern).format(_date);
     }
+  }
+
+  int getTimeStamp(Filter filter, String date) {
+    DateTime _date = dateTimeNow();
+    switch (filter) {
+      case Filter.six_hour:
+      case Filter.one_day:
+        _date = DateFormat(hourly_pattern).parse(date);
+        break;
+      case Filter.one_week:
+      case Filter.one_month:
+        _date = DateFormat(daily_pattern).parse(date);
+        break;
+      case Filter.custom0:
+      case Filter.custom1:
+        String pattern = filter != Filter.custom0 ? daily_pattern : hourly_pattern;
+        _date = DateFormat(pattern).parse(date);
+    }
+    String date_string = (_date.millisecondsSinceEpoch / 1000).toStringAsFixed(0);
+    print('$date $date_string');
+    return int.parse(date_string);
   }
 
   DateTime dateTimeNow() {

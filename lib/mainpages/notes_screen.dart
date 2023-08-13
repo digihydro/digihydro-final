@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:digihydro/enums/enums.dart';
 import 'package:digihydro/mainpages/history_screen.dart';
+import 'package:digihydro/mainpages/snapshot_screen.dart';
 import 'package:digihydro/model/snapshot.dart';
 import 'package:digihydro/widgets/expandable_text.dart';
 import 'package:flutter/material.dart';
@@ -165,7 +166,6 @@ class displayNote extends State<notesPage> {
               centerTitle: true,
             ),
           ),
-
           SliverToBoxAdapter(
             child:  Container(
               /*decoration: BoxDecoration(
@@ -269,7 +269,7 @@ class displayNote extends State<notesPage> {
                                               .toString()
                                               : "[No Subject]",
                                           style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 18,
                                             fontWeight: FontWeight.bold,
                                             color: Theme
                                                 .of(context)
@@ -285,7 +285,7 @@ class displayNote extends State<notesPage> {
                                               .toString(),
                                           textAlign: TextAlign.right,
                                           style: TextStyle(
-                                            fontSize: 15,
+                                            fontSize: 18,
                                             color: Theme
                                                 .of(context)
                                                 .primaryColor,
@@ -351,6 +351,7 @@ class displayNote extends State<notesPage> {
                                               padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
                                               child: Text("Current Device Data:",
                                                 style: TextStyle(
+                                                    fontSize: 15,
                                                     color: Theme
                                                         .of(context)
                                                         .primaryColor
@@ -366,6 +367,9 @@ class displayNote extends State<notesPage> {
                                                   .replaceAll(RegExp("{|}"), "")
                                                   .replaceAll(RegExp(","), '\n')
                                                   .replaceAll(RegExp("0420:"), ''),
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                )
                                             ),
                                           ],
                                         ),
@@ -385,6 +389,7 @@ class displayNote extends State<notesPage> {
                                               padding: const EdgeInsets.fromLTRB(0, 0, 0, 5),
                                               child: Text("Snapshots:",
                                                 style: TextStyle(
+                                                    fontSize: 15,
                                                     color: Theme
                                                         .of(context)
                                                         .primaryColor
@@ -414,7 +419,7 @@ class displayNote extends State<notesPage> {
                                                             context,
                                                             MaterialPageRoute(
                                                               builder: (context) =>
-                                                                  historyPage(
+                                                                  snapshotPage(
                                                                     filter: filter,
                                                                     title: 'snapshot_${snapshot_list?[i]["title"]}' ??
                                                                         "",
