@@ -414,7 +414,7 @@ Widget ShowIndividualChart(Map<dynamic, dynamic> data, Filter filter,
               case 3:
                 _data = data["spots"][Constant.ph];
                 title = "WATER ACIDITY";
-                maxY = 100;
+                maxY = 20;
                 interval = 20;
                 reserve_size = 35;
                 break;
@@ -514,11 +514,10 @@ Map<dynamic, double> getValues(Map<dynamic, dynamic> data, Filter filter) {
     maxX_interval = (data['range_x'].length.toDouble() - 1);
 
     if (data['range_x'].length > 31 && data['range_x'].length <= 372) {
-      vertical_interval = data['range_x'].length/12;
+      vertical_interval = data['range_x'].length / 12;
     } else {
       vertical_interval = 1;
     }
-
   }
 
   Map<dynamic, double> res = {};
