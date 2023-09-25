@@ -1,166 +1,200 @@
-const functions = require('firebase-functions');
+/**
+ * Import function triggers from their respective submodules:
+ *
+ * const {onCall} = require("firebase-functions/v2/https");
+ * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ */
+
+const functions = require("firebase-functions");
+const admin = require('firebase-admin');
+const serviceAccount = require("./service_account.json");
+
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com`
+});
+
+
+// Create and deploy your first functions
+// https://firebase.google.com/docs/functions/get-started
+
+// exports.helloWorld = onRequest((request, response) => {
+//   logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });
+
+exports.dataPreProcessing = functions.database
+  .ref("/measurement_history/Devices/0420/{timestamp}")
+  .onCreate((snapshot, context) => {
+
+    const timestamp = parseInt(context.params.timestamp);
+    console.info(`New data is added: ${timestamp}`);
+
+    let dateObject =new Date(timestamp * 1000);
+
+    const logsData = snapshot.val();
+    let date = getDateTimeWithTimezone(dateObject).split(" ")[0];;
+    let datetime = getDateTimeWithTimezone(dateObject);
+
+    let temp = parseFloat(logsData.Temperature);
+    let waterTemp = parseFloat(logsData.WaterTemperature);
+    let humid = parseFloat(logsData.Humidity);
+    let tds = parseFloat(logsData.TotalDissolvedSolids);
+    let ph = parseFloat(logsData.pH);
+
+    if (temp && waterTemp && humid && tds && ph) {
+      console.log("All values are valid");
+      processDailyData("Temperature", temp, date);
+      processDailyData("WaterTemperature", waterTemp, date);
+      processDailyData("Humidity", humid, date);
+      processDailyData("TotalDissolvedSolids", tds, date);
+      processDailyData("pH", ph, date);
+
+      processHourlyData("Temperature", temp, datetime);
+      processHourlyData("WaterTemperature", waterTemp, datetime);
+      processHourlyData("Humidity", humid, datetime);
+      processHourlyData("TotalDissolvedSolids", tds, datetime);
+      processHourlyData("pH", ph, datetime);
+    }else {
+      console.log("Has an invalid input...all values are skipped.");
+    }
+});
+
+
+function processDailyData(type, value, id) {
+  const dailyData = admin.database().ref(`/DailyData/${type}`);
+  const dailyStamp = Date.parse(id) / 1000;
+  admin
+    .database()
+    .ref(`/DailyData/${type}/${id}`)
+    .once('value')
+    .then(data => {
+      if (data.hasChildren()) {
+        let currentData = data.val();
+        console.log(currentData);
+        dailyData
+          .child(id)
+          .set(processData(currentData, value))
+      } else {
+        dailyData.child(id).set({
+          "timestamp": dailyStamp,
+          "current_value": value,
+          "total_value": value,
+          "min": value,
+          "max": value,
+          "count": 1
+        });
+      }
+    })
+}
+
+function processHourlyData(type, value, id) {
+  const hourlyData = admin.database().ref(`/HourlyData/${type}`);
+  const hourlyStamp = Date.parse(id) / 1000;
+  admin
+    .database()
+    .ref(`/HourlyData/${type}/${id}`)
+    .once('value')
+    .then(data => {
+      console.log("Data");
+      if (data.hasChildren()) {
+        let currentData = data.val();
+        console.log(currentData);
+        hourlyData
+          .child(id)
+          .set(processData(currentData, value))
+      } else {
+        hourlyData.child(id).set({
+          "timestamp": hourlyStamp,
+          "current_value" : value,
+          "total_value": value,
+          "min": value,
+          "max": value,
+          "count": 1
+        });
+      }
+    })
+}
+
+function getDateTimeWithTimezone(dateValue) {
+  let dateString = dateValue.toLocaleString('en-PH', {
+    timeZone: 'Asia/Manila',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: "h23"
+  });
+  let temp = dateString.replaceAll("/","-").replace(",", "");
+  return changeDateTimeFormat(temp);
+}
+
+function changeDateTimeFormat(value) {
+  let datehr =value.split(":");
+  return `${datehr[0]}:00`;
+}
+
+
+function processData(currentData, newData) {
+  currentData.current_value = newData;
+  currentData.total_value += newData;
+  if (currentData.min > newData) {
+    currentData.min = newData;
+  }
+  if (currentData.max < newData) {
+    currentData.max = newData;
+  }
+  currentData.count++;
+
+  return currentData;
+}
+
+function getDate(value) {
+  return `${value.getMonth() + 1}-${value.getDate()}-${value.getFullYear()}`;
+}
+
+function getDateWithHour (value) {
+  const hour = `${value.getHours()}:00`
+  const [sHours, minutes] = hour.match(/([0-9]{1,2}):([0-9]{2})/).slice(1);
+  const period = +sHours < 12 ? 'AM' : 'PM';
+  const hours = +sHours % 12 || 12;
+
+  return `${value.getMonth() + 1}-${value.getDate()}-${value.getFullYear()} ${hours}:${minutes} ${period}`;
+}
+
+function getTimestamp(value) {
+  return
+}
+
+//updateDeviceStatus function
+
+let lastDataTimestamp = 0; // Initialize the timestamp of the last data
+
+const functions = require("firebase-functions");
 const admin = require('firebase-admin');
 admin.initializeApp();
 
-const refDev = functions.database.ref("Devices/{deviceId}");
-//  const refUse = functions.database.ref("Users/{userId}/token");
+exports.checkDeviceData = functions.pubsub.schedule('every 10 seconds').timeZone('UTC').onRun((context) => {
+  const currentTime = Date.now();
+  const tenSecondsAgo = currentTime - 10000; // 10 seconds ago
 
-exports.sendNotif = refDev.onWrite(async (change, context) => {
-  //const userId = context.params.userId;
-  //const FCMToken = await admin.database().ref(`Users/${userId}`).once('value');
-  const FCMTokenSnapshot = await admin.database().ref('Users/MsXEX6StmnMhFveYYYz7kMPqaC92/token').once('value');
-  const FCMToken = FCMTokenSnapshot.val(); // Get the token value from the snapshot
+  // Reference to the "/measurement_history/Devices/0420" path
+  const devicesRef = admin.database().ref("/measurement_history/Devices/0420");
 
-  //jam: nnzvV8MRT5e50S81O44LQoJKFs23
-  //baj: WDYkjIUSyGX2FuuwxqEZOSPoZX72
-  //dav: MsXEX6StmnMhFveYYYz7kMPqaC92
-  const airTemp = change.after.child("Temperature").val();
-  const airTempB = change.before.child("Temperature").val();
-  const waterTemp = change.after.child("WaterTemperature").val();
-  const waterTempB = change.before.child("WaterTemperature").val();
-  const humidity = change.after.child("Humidity").val();
-  const humidityB = change.before.child("Humidity").val();
-  const tds = change.after.child("TotalDissolvedSolids").val();
-  const tdsB = change.before.child("TotalDissolvedSolids").val();
-  const acidity = change.after.child("pH").val();
-  const acidityB = change.before.child("pH").val();
-  console.log(airTemp + ' ' + waterTemp + ' ' + FCMToken);
+  // Query data within the last 10 seconds
+  return devicesRef.orderByKey().startAt(tenSecondsAgo.toString()).once("value")
+    .then(snapshot => {
+      const hasData = snapshot.exists();
 
-  if(airTemp !== airTempB) {
-    if (airTemp >= 35){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'Air Temperature is above 35°C (95°F)',
-          body: `Current measurement is ${airTemp}°C. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }else if (airTemp < 18){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'Air Temperature below 18°C (65°F)',
-          body: `Current measurement is ${airTemp}°C. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }
-  }
-  
-  if(humidity !== humidityB){
-    if (humidity >= 85){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'Humidity is above 85%',
-          body: `Current measurement is ${humidity}%. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }else if (humidity < 50){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'Humidity is below 50%',
-          body: `Current measurement is ${humidity}%. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }
-  }
-  
-  if(waterTemp !== waterTempB){
-    if (waterTemp >= 28){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'Water Temperature above 28°C (82°F)',
-          body: `Current measurement is ${waterTemp}°C. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }else if (waterTemp < 20){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'Water Temperature below 20°C (68°F)',
-          body: `Current measurement is ${waterTemp}°C. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }
-  }
-  
-  if(tds !== tdsB) {
-    if (tds >= 1500){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'TDS is above 1500ppm',
-          body: `Current measurement is ${tds}ppm. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }else if (tds < 400){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'TDS is below 400ppm',
-          body: `Current measurement is ${tds}ppm. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }
-  }
-  
-  if(acidity !== acidityB) {
-    if (acidity >= 6.5){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'Acidity is above 6.5pH',
-          body: `Current measurement is ${acidity}pH. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }else if (acidity < 5.0){
-      const messageIns = {
-        token: FCMToken,
-        notification: {
-          title: 'Acidity is below 5pH',
-          body: `Current measurement is ${acidity}pH. Follow the suggested action in order to save your plants!`,
-        },
-        data: {click_action: 'FLUTTER_NOTIFICATION_CLICK'},
-      }
-      sendPushNotif(messageIns);
-    }
-  }
-
-    //sendPushNotif(message);
-    /*try {
-      await admin.messaging().send(message);
-      console.log('Notification sent successfully');
-    } catch (error) {
-      console.error('Error sending FCM notification:', error);
-    }*/
-  //};
+      // Set the "hasData" node in Firebase
+      return admin.database().ref('/device_status/hasData').set(hasData);
+    })
+    .catch(error => {
+      console.error("Error checking device data:", error);
+      return null;
+    });
 });
-
-function sendPushNotif(message){
-  try {
-    admin.messaging().send(message);
-    console.log('Notification sent successfully');
-  } catch (error) {
-    console.error('Error sending FCM notification:', error);
-  }
-}

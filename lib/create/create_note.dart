@@ -30,6 +30,7 @@ class note extends State<createNote> {
   final DatabaseReference refDevice = FirebaseDatabase.instance.ref('Devices');
   final DatabaseReference destinationReference =
       FirebaseDatabase.instance.ref().child('noteStats');
+  Map<dynamic, dynamic>? currentData;
 
   Future<Map<dynamic, dynamic>?> FetchData() async {
     try {
@@ -37,6 +38,8 @@ class note extends State<createNote> {
       DataSnapshot snapshot = event.snapshot;
       Map<dynamic, dynamic>? sourceData =
           snapshot.value as Map<dynamic, dynamic>?;
+      destinationReference.set(sourceData);
+      currentData = sourceData;
       return sourceData;
     } catch (error) {
       // Handle any errors that occur during the read operation
@@ -70,6 +73,7 @@ class note extends State<createNote> {
   void initState() {
     super.initState();
     userDate.text = DateFormat('MM-dd-yyyy').format(DateTime.now());
+    FetchData();
     if (widget.isEdit) {
       var snapshot = widget.snapshot;
       var _key = snapshot.key;
@@ -769,15 +773,15 @@ class note extends State<createNote> {
                             }
 
                             if (!widget.isEdit) {
-                              Map<dynamic, dynamic>? fetchedData =
-                                  await FetchData();
+                              /*Map<dynamic, dynamic>? fetchedData =
+                                  await FetchData();*/
                               await ref.set({
                                 "title": title.text,
                                 "date": userDate.text,
                                 "userId": currentUser?.uid,
                                 "userNote": userNote.text,
                                 "imageUrl": imageUrl,
-                                "currentData": fetchedData,
+                                "currentData": currentData,
                                 "snapshot": jsonEncode(snapshot_list),
                               }).asStream();
                             } else {
